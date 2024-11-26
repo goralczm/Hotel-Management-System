@@ -4,9 +4,9 @@ from typing import Iterable
 from dependency_injector.wiring import inject, Provide
 from fastapi import APIRouter, Depends, HTTPException
 
-from hotel_management_system.src.container import Container
-from hotel_management_system.src.core.domains.guest import Guest, GuestIn
-from hotel_management_system.src.core.services.i_guest_service import IGuestService
+from hotel_management_system.container import Container
+from hotel_management_system.core.domains.guest import Guest, GuestIn
+from hotel_management_system.core.services.i_guest_service import IGuestService
 
 router = APIRouter()
 

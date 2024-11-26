@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from typing import Iterable
 
-from hotel_management_system.src.core.domains.room import Room, RoomIn
+from hotel_management_system.core.domains.room import Room, RoomIn
 
 
 class IRoomService(ABC):

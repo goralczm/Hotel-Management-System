@@ -11,7 +11,7 @@ from asyncpg.exceptions import (    # type: ignore
     ConnectionDoesNotExistError,
 )
 
-from hotel_management_system.src.config import config
+from hotel_management_system.config import config
 
 metadata = sqlalchemy.MetaData()
 

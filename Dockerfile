@@ -8,8 +8,8 @@ RUN apk add --update --no-cache --virtual .tmp-build-deps gcc libc-dev linux-hea
 RUN pip install -r /requirements.txt
 RUN apk del .tmp-build-deps
 
-RUN mkdir /src
-COPY ./src /src
+RUN mkdir /hotel_management_system
+COPY ./hotel_management_system /hotel_management_system
 
 RUN adduser -D user
 USER user

@@ -1,26 +1,15 @@
-"""Module containing continent service implementation."""
+"""Module containing guest service abstractions."""
 
+from abc import ABC, abstractmethod
 from typing import Iterable
 
-from hotel_management_system.src.core.domains.guest import Guest, GuestIn
-from hotel_management_system.src.core.repositories.i_guest_repository import IGuestRepository
-from hotel_management_system.src.core.services.i_guest_service import IGuestService
+from hotel_management_system.core.domains.guest import Guest, GuestIn
 
 
-class GuestService(IGuestService):
-    """A class implementing the guest service."""
+class IGuestService(ABC):
+    """A class representing guest repository."""
 
-    _repository: IGuestRepository
-
-    def __init__(self, repository: IGuestRepository) -> None:
-        """The initializer of the `guest service`.
-
-        Args:
-            repository (IguestRepository): The reference to the repository.
-        """
-
-        self._repository = repository
-
+    @abstractmethod
     async def get_all(self) -> Iterable[Guest]:
         """The method getting all guests from the repository.
 
@@ -28,8 +17,7 @@ class GuestService(IGuestService):
             Iterable[guestDTO]: All guests.
         """
 
-        return await self._repository.get_all_guests()
-
+    @abstractmethod
     async def get_by_id(self, guest_id: int) -> Guest | None:
         """The method getting guest by provided id.
 
@@ -40,8 +28,7 @@ class GuestService(IGuestService):
             guestDTO | None: The guest details.
         """
 
-        return await self._repository.get_by_id(guest_id)
-
+    @abstractmethod
     async def add_guest(self, data: GuestIn) -> Guest | None:
         """The method adding new guest to the data storage.
 
@@ -52,8 +39,7 @@ class GuestService(IGuestService):
             guest | None: Full details of the newly added guest.
         """
 
-        return await self._repository.add_guest(data)
-
+    @abstractmethod
     async def update_guest(
             self,
             guest_id: int,
@@ -69,11 +55,7 @@ class GuestService(IGuestService):
             guest | None: The updated guest details.
         """
 
-        return await self._repository.update_guest(
-            guest_id=guest_id,
-            data=data,
-        )
-
+    @abstractmethod
     async def delete_guest(self, guest_id: int) -> bool:
         """The method updating removing guest from the data storage.
 
@@ -83,5 +65,3 @@ class GuestService(IGuestService):
         Returns:
             bool: Success of the operation.
         """
-
-        return await self._repository.delete_guest(guest_id)

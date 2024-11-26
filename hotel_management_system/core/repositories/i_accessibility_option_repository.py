@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Iterable
 
-from hotel_management_system.src.core.domains.accessibility_option import AccessibilityOptionIn
+from hotel_management_system.core.domains.accessibility_option import AccessibilityOptionIn
 
 
 class IAccessibilityOptionRepository(ABC):

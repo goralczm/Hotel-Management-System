@@ -5,9 +5,9 @@ from typing import Any, Iterable
 from asyncpg import Record  # type: ignore
 from sqlalchemy import select
 
-from hotel_management_system.src.core.repositories.i_room_repository import IRoomRepository
-from hotel_management_system.src.core.domains.room import Room, RoomIn
-from hotel_management_system.src.db import (
+from hotel_management_system.core.repositories.i_room_repository import IRoomRepository
+from hotel_management_system.core.domains.room import Room, RoomIn
+from hotel_management_system.db import (
     rooms_table,
     database,
 )

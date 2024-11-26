@@ -2,9 +2,9 @@
 
 from typing import Iterable
 
-from hotel_management_system.src.core.domains.room import Room, RoomIn
-from hotel_management_system.src.core.repositories.i_room_repository import IRoomRepository
-from hotel_management_system.src.core.services.i_room_service import IRoomService
+from hotel_management_system.core.domains.room import Room, RoomIn
+from hotel_management_system.core.repositories.i_room_repository import IRoomRepository
+from hotel_management_system.core.services.i_room_service import IRoomService
 
 
 class RoomService(IRoomService):

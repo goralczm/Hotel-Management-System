@@ -5,9 +5,9 @@ from typing import Any, Iterable
 from asyncpg import Record  # type: ignore
 from sqlalchemy import select
 
-from hotel_management_system.src.core.repositories.i_accessibility_option_repository import IAccessibilityOptionRepository
-from hotel_management_system.src.core.domains.accessibility_option import AccessibilityOption, AccessibilityOptionIn
-from hotel_management_system.src.db import (
+from hotel_management_system.core.repositories.i_accessibility_option_repository import IAccessibilityOptionRepository
+from hotel_management_system.core.domains.accessibility_option import AccessibilityOption, AccessibilityOptionIn
+from hotel_management_system.db import (
     accessibility_options_table,
     database,
 )

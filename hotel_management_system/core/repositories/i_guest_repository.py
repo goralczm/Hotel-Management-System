@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Iterable
 
-from hotel_management_system.src.core.domains.guest import GuestIn
+from hotel_management_system.core.domains.guest import GuestIn
 
 
 class IGuestRepository(ABC):

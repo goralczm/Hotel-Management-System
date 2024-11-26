@@ -5,13 +5,13 @@ from typing import AsyncGenerator
 
 from fastapi import FastAPI
 
-from hotel_management_system.src.api.routers.guest import router as guest_router
-from hotel_management_system.src.api.routers.accessibility import router as accessibility_router
-from hotel_management_system.src.api.routers.room import router as room_router
-from hotel_management_system.src.container import Container
-from hotel_management_system.src.db import database
-from hotel_management_system.src.db import init_db
-from hotel_management_system.src.utils import setup
+from hotel_management_system.api.routers.guest import router as guest_router
+from hotel_management_system.api.routers.accessibility import router as accessibility_router
+from hotel_management_system.api.routers.room import router as room_router
+from hotel_management_system.container import Container
+from hotel_management_system.db import database
+from hotel_management_system.db import init_db
+from hotel_management_system.utils import setup
 
 container = Container()
 container.wire(modules=[
