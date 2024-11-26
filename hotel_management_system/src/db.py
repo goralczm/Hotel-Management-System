@@ -11,7 +11,7 @@ from asyncpg.exceptions import (    # type: ignore
     ConnectionDoesNotExistError,
 )
 
-from hotel_management_system.config import config
+from hotel_management_system.src.config import config
 
 metadata = sqlalchemy.MetaData()
 
@@ -34,6 +34,20 @@ rooms_table = sqlalchemy.Table(
     metadata,
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
     sqlalchemy.Column("alias", sqlalchemy.String),
+)
+
+accessibility_options_table = sqlalchemy.Table(
+    "accessibility_options",
+    metadata,
+    sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column("name", sqlalchemy.String)
+)
+
+rooms_accessibility_options_table = sqlalchemy.Table(
+    "rooms_accessibility_options_table",
+    metadata,
+    sqlalchemy.Column("room_id", sqlalchemy.ForeignKey("rooms.id"), nullable=False),
+    sqlalchemy.Column("accessibility_option_id", sqlalchemy.ForeignKey("accessibility_options.id"), nullable=False)
 )
 
 reservations_table = sqlalchemy.Table(

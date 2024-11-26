@@ -2,10 +2,9 @@
 
 from typing import Iterable
 
-from hotel_management_system.core.domains.guest import Guest, GuestIn
-from hotel_management_system.core.repositories.iguestrepository import IGuestRepository
-from hotel_management_system.infrastructure.dtos.guestdto import GuestDTO
-from hotel_management_system.infrastructure.services.iguestservice import IGuestService
+from hotel_management_system.src.core.domains.guest import Guest, GuestIn
+from hotel_management_system.src.core.repositories.i_guest_repository import IGuestRepository
+from hotel_management_system.src.core.services.i_guest_service import IGuestService
 
 
 class GuestService(IGuestService):
@@ -22,7 +21,7 @@ class GuestService(IGuestService):
 
         self._repository = repository
 
-    async def get_all(self) -> Iterable[GuestDTO]:
+    async def get_all(self) -> Iterable[Guest]:
         """The method getting all guests from the repository.
 
         Returns:
@@ -31,7 +30,7 @@ class GuestService(IGuestService):
 
         return await self._repository.get_all_guests()
 
-    async def get_by_id(self, guest_id: int) -> GuestDTO | None:
+    async def get_by_id(self, guest_id: int) -> Guest | None:
         """The method getting guest by provided id.
 
         Args:

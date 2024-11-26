@@ -3,15 +3,14 @@
 from abc import ABC, abstractmethod
 from typing import Iterable
 
-from hotel_management_system.core.domains.guest import Guest, GuestIn
-from hotel_management_system.infrastructure.dtos.guestdto import GuestDTO
+from hotel_management_system.src.core.domains.guest import Guest, GuestIn
 
 
 class IGuestService(ABC):
     """A class representing guest repository."""
 
     @abstractmethod
-    async def get_all(self) -> Iterable[GuestDTO]:
+    async def get_all(self) -> Iterable[Guest]:
         """The method getting all guests from the repository.
 
         Returns:
@@ -19,7 +18,7 @@ class IGuestService(ABC):
         """
 
     @abstractmethod
-    async def get_by_id(self, guest_id: int) -> GuestDTO | None:
+    async def get_by_id(self, guest_id: int) -> Guest | None:
         """The method getting guest by provided id.
 
         Args:

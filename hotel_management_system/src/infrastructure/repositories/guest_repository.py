@@ -3,15 +3,14 @@
 from typing import Any, Iterable
 
 from asyncpg import Record  # type: ignore
-from sqlalchemy import select, join
+from sqlalchemy import select
 
-from hotel_management_system.core.repositories.iguestrepository import IGuestRepository
-from hotel_management_system.core.domains.guest import Guest, GuestIn
-from hotel_management_system.db import (
+from hotel_management_system.src.core.repositories.i_guest_repository import IGuestRepository
+from hotel_management_system.src.core.domains.guest import Guest, GuestIn
+from hotel_management_system.src.db import (
     guests_table,
     database,
 )
-from hotel_management_system.infrastructure.dtos.guestdto import GuestDTO
 
 
 class GuestRepository(IGuestRepository):
@@ -30,7 +29,7 @@ class GuestRepository(IGuestRepository):
         )
         guests = await database.fetch_all(query)
 
-        return [GuestDTO.from_record(guest) for guest in guests]
+        return [Guest.from_record(guest) for guest in guests]
 
     async def get_by_id(self, guest_id: int) -> Any | None:
         """The method getting guest by provided id.
@@ -42,14 +41,7 @@ class GuestRepository(IGuestRepository):
             Any | None: The guest details.
         """
 
-        query = (
-            select(guests_table)
-            .where(guests_table.c.id == guest_id)
-            .order_by(guests_table.c.first_name.asc())
-        )
-        airport = await database.fetch_one(query)
-
-        return GuestDTO.from_record(airport) if airport else None
+        return await self._get_by_id(guest_id)
 
     async def add_guest(self, data: GuestIn) -> Any | None:
         """The method adding new guest to the data storage.

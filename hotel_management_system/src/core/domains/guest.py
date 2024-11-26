@@ -1,13 +1,13 @@
-"""A module containing DTO models for output airports."""
-
+"""Module containing airport-related domain models"""
 
 from typing import Optional
-from asyncpg import Record  # type: ignore
+
+from asyncpg import Record
 from pydantic import BaseModel, ConfigDict
 
-class GuestDTO(BaseModel):
-    """A model representing DTO for airport data."""
-    id: int
+
+class GuestIn(BaseModel):
+    """Model representing guest's DTO attributes."""
     first_name: str
     last_name: str
     address: str
@@ -17,21 +17,25 @@ class GuestDTO(BaseModel):
     phone_number: str
     email: str
 
+
+class Guest(GuestIn):
+    """Model representing guest's attributes in the database."""
+    id: int
+
     model_config = ConfigDict(
         from_attributes=True,
-        extra="ignore",
-        arbitrary_types_allowed=True,
+        extra="ignore"
     )
 
     @classmethod
-    def from_record(cls, record: Record) -> "GuestDTO":
+    def from_record(cls, record: Record) -> "Guest":
         """A method for preparing DTO instance based on DB record.
 
         Args:
             record (Record): The DB record.
 
         Returns:
-            AirportDTO: The final DTO instance.
+            GuestDTO: The final DTO instance.
         """
         record_dict = dict(record)
 

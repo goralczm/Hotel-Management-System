@@ -4,10 +4,9 @@ from typing import Iterable
 from dependency_injector.wiring import inject, Provide
 from fastapi import APIRouter, Depends, HTTPException
 
-from hotel_management_system.container import Container
-from hotel_management_system.core.domains.guest import Guest, GuestIn
-from hotel_management_system.infrastructure.dtos.guestdto import GuestDTO
-from hotel_management_system.infrastructure.services.iguestservice import IGuestService
+from hotel_management_system.src.container import Container
+from hotel_management_system.src.core.domains.guest import Guest, GuestIn
+from hotel_management_system.src.core.services.i_guest_service import IGuestService
 
 router = APIRouter()
 
@@ -33,7 +32,7 @@ async def create_guest(
     return new_guest.model_dump() if new_guest else {}
 
 
-@router.get("/all", response_model=Iterable[GuestDTO], status_code=200)
+@router.get("/all", response_model=Iterable[Guest], status_code=200)
 @inject
 async def get_all_guests(
         service: IGuestService = Depends(Provide[Container.guest_service]),
@@ -54,7 +53,7 @@ async def get_all_guests(
 
 @router.get(
     "/{guest_id}",
-    response_model=GuestDTO,
+    response_model=Guest,
     status_code=200,
 )
 @inject
