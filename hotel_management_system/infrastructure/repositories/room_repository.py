@@ -40,8 +40,9 @@ class RoomRepository(IRoomRepository):
         Returns:
             Any | None: The room details.
         """
+        room = await self._get_by_id(room_id)
 
-        return await self._get_by_id(room_id)
+        return Room.from_record(room) if room else None
 
     async def add_room(self, data: RoomIn) -> Any | None:
         """The method adding new room to the data storage.

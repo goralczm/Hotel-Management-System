@@ -29,6 +29,17 @@ class IAccessibilityOptionService(ABC):
         """
 
     @abstractmethod
+    async def get_by_name(self, accessibility_option_name: str) -> AccessibilityOption | None:
+        """The method getting accessibility_option by provided name.
+
+        Args:
+            accessibility_option_name (str): The name of the accessibility_option.
+
+        Returns:
+            accessibility_optionDTO | None: The accessibility_option details.
+        """
+
+    @abstractmethod
     async def add_accessibility_option(self, data: AccessibilityOptionIn) -> AccessibilityOption | None:
         """The method adding new accessibility_option to the data storage.
 

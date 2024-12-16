@@ -3,7 +3,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Iterable
 
-from hotel_management_system.core.domains.accessibility_option import AccessibilityOptionIn
+from hotel_management_system.core.domains.accessibility_option import AccessibilityOptionIn, AccessibilityOption
 
 
 class IAccessibilityOptionRepository(ABC):
@@ -18,7 +18,7 @@ class IAccessibilityOptionRepository(ABC):
         """
 
     @abstractmethod
-    async def add_accessibility_option(self, data: AccessibilityOptionIn) -> Any | None:
+    async def add_accessibility_option(self, data: AccessibilityOptionIn) -> AccessibilityOption | None:
         """The abstract adding new accessibility_option to the data storage.
 
         Args:
@@ -33,7 +33,7 @@ class IAccessibilityOptionRepository(ABC):
             self,
             accessibility_option_id: int,
             data: AccessibilityOptionIn,
-    ) -> Any | None:
+    ) -> AccessibilityOption | None:
         """The abstract updating accessibility_option data in the data storage.
 
         Args:
@@ -53,4 +53,26 @@ class IAccessibilityOptionRepository(ABC):
 
         Returns:
             bool: Success of the operation.
+        """
+
+    @abstractmethod
+    async def get_by_id(self, accessibility_option_id: int) -> AccessibilityOption | None:
+        """The method getting accessibility_option by provided id.
+
+        Args:
+            accessibility_option_id (int): The id of the accessibility_option.
+
+        Returns:
+            Any | None: The accessibility_option details.
+        """
+
+    @abstractmethod
+    async def get_by_name(self, accessibility_option_name: str) -> AccessibilityOption | None:
+        """The method getting accessibility_option by provided name.
+
+        Args:
+            accessibility_option_name (str): The name of the accessibility_option.
+
+        Returns:
+            accessibility_optionDTO | None: The accessibility_option details.
         """

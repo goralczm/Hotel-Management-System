@@ -16,7 +16,7 @@ class AccessibilityOptionService(IAccessibilityOptionService):
         """The initializer of the `accessibility_option service`.
 
         Args:
-            repository (Iaccessibility_optionRepository): The reference to the repository.
+            repository (IAccessibilityOptionRepository): The reference to the repository.
         """
 
         self._repository = repository
@@ -41,6 +41,18 @@ class AccessibilityOptionService(IAccessibilityOptionService):
         """
 
         return await self._repository.get_by_id(accessibility_option_id)
+
+    async def get_by_name(self, accessibility_option_name: str) -> AccessibilityOption | None:
+        """The method getting accessibility_option by provided name.
+
+        Args:
+            accessibility_option_name (str): The name of the accessibility_option.
+
+        Returns:
+            accessibility_optionDTO | None: The accessibility_option details.
+        """
+
+        return await self._repository.get_by_name(accessibility_option_name)
 
     async def add_accessibility_option(self, data: AccessibilityOptionIn) -> AccessibilityOption | None:
         """The method adding new accessibility_option to the data storage.

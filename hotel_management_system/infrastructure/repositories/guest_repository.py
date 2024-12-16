@@ -40,8 +40,9 @@ class GuestRepository(IGuestRepository):
         Returns:
             Any | None: The guest details.
         """
+        guest = await self._get_by_id(guest_id)
 
-        return await self._get_by_id(guest_id)
+        return Guest.from_record(guest) if guest else None
 
     async def add_guest(self, data: GuestIn) -> Any | None:
         """The method adding new guest to the data storage.
@@ -124,7 +125,6 @@ class GuestRepository(IGuestRepository):
         query = (
             guests_table.select()
             .where(guests_table.c.id == guest_id)
-            .order_by(guests_table.c.first_name.asc())
         )
 
         return await database.fetch_one(query)

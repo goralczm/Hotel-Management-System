@@ -40,8 +40,26 @@ class AccessibilityOptionRepository(IAccessibilityOptionRepository):
         Returns:
             Any | None: The accessibility_option details.
         """
+        accessibility_option = await self._get_by_id(accessibility_option_id)
 
-        return await self._get_by_id(accessibility_option_id)
+        return AccessibilityOption.from_record(accessibility_option) if accessibility_option else None
+
+    async def get_by_name(self, accessibility_option_name: str) -> AccessibilityOption | None:
+        """The method getting accessibility_option by provided name.
+
+        Args:
+            accessibility_option_name (str): The name of the accessibility_option.
+
+        Returns:
+            accessibility_optionDTO | None: The accessibility_option details.
+        """
+
+        query = (
+            accessibility_options_table.select()
+            .where(accessibility_options_table.c.name == accessibility_option_name)
+        )
+
+        return await database.fetch_one(query)
 
     async def add_accessibility_option(self, data: AccessibilityOptionIn) -> Any | None:
         """The method adding new accessibility_option to the data storage.

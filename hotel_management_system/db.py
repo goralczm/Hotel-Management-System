@@ -40,14 +40,21 @@ accessibility_options_table = sqlalchemy.Table(
     "accessibility_options",
     metadata,
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
-    sqlalchemy.Column("name", sqlalchemy.String)
+    sqlalchemy.Column("name", sqlalchemy.String),
 )
 
 rooms_accessibility_options_table = sqlalchemy.Table(
     "rooms_accessibility_options_table",
     metadata,
     sqlalchemy.Column("room_id", sqlalchemy.ForeignKey("rooms.id"), nullable=False),
-    sqlalchemy.Column("accessibility_option_id", sqlalchemy.ForeignKey("accessibility_options.id"), nullable=False)
+    sqlalchemy.Column("accessibility_option_id", sqlalchemy.ForeignKey("accessibility_options.id"), nullable=False),
+)
+
+guests_accessibility_options_table = sqlalchemy.Table(
+    "guests_accessibility_options_table",
+    metadata,
+    sqlalchemy.Column("guest_id", sqlalchemy.ForeignKey("guests.id"), nullable=False),
+    sqlalchemy.Column("accessibility_option_id", sqlalchemy.ForeignKey("accessibility_options.id"), nullable=False),
 )
 
 reservations_table = sqlalchemy.Table(
@@ -56,14 +63,30 @@ reservations_table = sqlalchemy.Table(
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
     sqlalchemy.Column("guest_id", sqlalchemy.ForeignKey("guests.id"), nullable=False),
     sqlalchemy.Column("start_date", sqlalchemy.Date),
-    sqlalchemy.Column("end_date", sqlalchemy.Date)
+    sqlalchemy.Column("end_date", sqlalchemy.Date),
 )
 
 reservation_rooms_table = sqlalchemy.Table(
     "reservation_rooms",
     metadata,
     sqlalchemy.Column("reservation_id", sqlalchemy.ForeignKey("reservations.id"), nullable=False),
-    sqlalchemy.Column("room_id", sqlalchemy.ForeignKey("rooms.id"), nullable=False)
+    sqlalchemy.Column("room_id", sqlalchemy.ForeignKey("rooms.id"), nullable=False),
+)
+
+pricing_details_table = sqlalchemy.Table(
+    "pricing_details",
+    metadata,
+    sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column("name", sqlalchemy.String),
+    sqlalchemy.Column("price", sqlalchemy.Float),
+)
+
+bills_table = sqlalchemy.Table(
+    "bills",
+    metadata,
+    sqlalchemy.Column("room_id", sqlalchemy.ForeignKey("rooms.id"), nullable=False),
+    sqlalchemy.Column("pricing_detail_id", sqlalchemy.ForeignKey("pricing_details.id"), nullable=False),
+    sqlalchemy.Column("reservation_id", sqlalchemy.ForeignKey("reservations.id"), nullable=False),
 )
 
 db_uri = (
@@ -105,5 +128,3 @@ async def init_db(retries: int = 5, delay: int = 5) -> None:
         ) as e:
             print(f"Attempt {attempt + 1} failed: {e}")
             await asyncio.sleep(delay)
-
-    raise ConnectionError("Could not connect to DB after several retries.")
