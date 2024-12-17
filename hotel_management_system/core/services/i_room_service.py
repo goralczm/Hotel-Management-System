@@ -1,7 +1,7 @@
 """Module containing room service abstractions."""
 
 from abc import ABC, abstractmethod
-from typing import Iterable
+from typing import Iterable, List
 
 from hotel_management_system.core.domains.room import Room, RoomIn
 
@@ -10,11 +10,18 @@ class IRoomService(ABC):
     """A class representing room repository."""
 
     @abstractmethod
-    async def get_all(self) -> Iterable[Room]:
+    async def get_all(self) -> List[Room]:
         """The method getting all rooms from the repository.
 
         Returns:
             Iterable[roomDTO]: All rooms.
+        """
+
+    @abstractmethod
+    async def get_all_free_rooms(self) -> List[Room]:
+        """
+
+        :return:
         """
 
     @abstractmethod

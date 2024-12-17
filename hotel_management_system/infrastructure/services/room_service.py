@@ -1,6 +1,6 @@
 """Module containing continent service implementation."""
 
-from typing import Iterable
+from typing import Iterable, List
 
 from hotel_management_system.core.domains.room import Room, RoomIn
 from hotel_management_system.core.repositories.i_room_repository import IRoomRepository
@@ -21,7 +21,7 @@ class RoomService(IRoomService):
 
         self._repository = repository
 
-    async def get_all(self) -> Iterable[Room]:
+    async def get_all(self) -> List[Room]:
         """The method getting all rooms from the repository.
 
         Returns:
@@ -29,6 +29,14 @@ class RoomService(IRoomService):
         """
 
         return await self._repository.get_all_rooms()
+
+    async def get_all_free_rooms(self) -> List[Room]:
+        """
+
+        :return:
+        """
+
+        return await self._repository.get_all_free_rooms()
 
     async def get_by_id(self, room_id: int) -> Room | None:
         """The method getting room by provided id.

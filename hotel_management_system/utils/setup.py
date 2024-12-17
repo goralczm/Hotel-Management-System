@@ -1,13 +1,17 @@
 from dependency_injector.wiring import Provide
 
+from hotel_management_system.api.routers import reservation_router
 from hotel_management_system.container import Container
 from hotel_management_system.core.domains.accessibility_option import AccessibilityOptionIn
 from hotel_management_system.core.domains.guest import GuestIn
+from hotel_management_system.core.domains.guest_accessibility_option import GuestAccessibilityOptionIn
 from hotel_management_system.core.domains.pricing_detail import PricingDetailIn
+from hotel_management_system.core.domains.reservation import ReservationIn
 from hotel_management_system.core.domains.room import RoomIn
 from hotel_management_system.core.domains.room_accessibility_option import RoomAccessibilityOptionIn
 
 from hotel_management_system.core.services.i_accessibility_option_service import IAccessibilityOptionService
+from hotel_management_system.core.services.i_guest_accessibility_option_service import IGuestAccessibilityOptionService
 from hotel_management_system.core.services.i_guest_service import IGuestService
 from hotel_management_system.core.services.i_pricing_detail_service import IPricingDetailService
 from hotel_management_system.core.services.i_reservation_service import IReservationService
@@ -21,16 +25,19 @@ async def main(
         room_service: IRoomService = Provide[Container.room_service],
         guest_service: IGuestService = Provide[Container.guest_service],
         reservation_service: IReservationService = Provide[Container.reservation_service],
-        room_accessibility_option_service: IRoomAccessibilityOptionService = Provide[Container.room_accessibility_option_service]
+        room_accessibility_option_service: IRoomAccessibilityOptionService = Provide[Container.room_accessibility_option_service],
+        guest_accessibility_option_service: IGuestAccessibilityOptionService = Provide[Container.guest_accessibility_option_service],
 ):
     await pricing_detail_service.add_pricing_detail(PricingDetailIn(
         name="Wczesne zameldowanie",
         price=25.00
     ))
+
     await pricing_detail_service.add_pricing_detail(PricingDetailIn(
         name="Śnidananie do pokoju",
         price=45.00
     ))
+
     sample_pricing_detail = await pricing_detail_service.add_pricing_detail(PricingDetailIn(
         name="Doba hotelowa",
         price=200.00
@@ -51,6 +58,11 @@ async def main(
         email="john.doe@example.com"
     ))
 
+    await guest_accessibility_option_service.add_guest_accessibility_option(GuestAccessibilityOptionIn(
+        guest_id=sample_guest.id,
+        accessibility_option_id=sample_accessibility_option.id
+    ))
+
     sample_room = await room_service.add_room(RoomIn(
         alias="A1"
     ))
@@ -59,3 +71,9 @@ async def main(
         room_id=sample_room.id,
         accessibility_option_id=sample_accessibility_option.id
     ))
+
+    await reservation_router.create_best_reservation(ReservationIn(
+        guest_id=sample_guest.id,
+        start_date="2024-12-17",
+        end_date="2024-12-17"
+    ), 1)

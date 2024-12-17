@@ -1,14 +1,19 @@
 """Module containing room repository implementation."""
 
-from typing import Any, Iterable
+from typing import Any, Iterable, List
 
 from asyncpg import Record  # type: ignore
 from sqlalchemy import select
 
+from hotel_management_system.core.domains.accessibility_option import AccessibilityOption
+from hotel_management_system.core.domains.room_accessibility_option import RoomAccessibilityOption
 from hotel_management_system.core.repositories.i_room_repository import IRoomRepository
 from hotel_management_system.core.domains.room import Room, RoomIn
 from hotel_management_system.db import (
     rooms_table,
+    rooms_accessibility_options_table,
+    accessibility_options_table,
+    reservation_rooms_table,
     database,
 )
 
@@ -16,7 +21,7 @@ from hotel_management_system.db import (
 class RoomRepository(IRoomRepository):
     """A class representing continent DB repository."""
 
-    async def get_all_rooms(self) -> Iterable[Any]:
+    async def get_all_rooms(self) -> List[Room]:
         """The method getting all rooms from the data storage.
 
         Returns:
@@ -27,11 +32,27 @@ class RoomRepository(IRoomRepository):
             select(rooms_table)
             .order_by(rooms_table.c.alias.asc())
         )
+
+        rooms_result = await database.fetch_all(query)
+
+        return [await self.parse_record(room) for room in rooms_result]
+
+    async def get_all_free_rooms(self) -> List[Room]:
+        reserved_rooms_subquery = (
+            select(reservation_rooms_table.c.room_id)
+        )
+
+        query = (
+            select(rooms_table)
+            .where(rooms_table.c.id.not_in(reserved_rooms_subquery))
+            .order_by(rooms_table.c.alias.asc())
+        )
+
         rooms = await database.fetch_all(query)
 
-        return [Room.from_record(room) for room in rooms]
+        return [await self.parse_record(room) for room in rooms]
 
-    async def get_by_id(self, room_id: int) -> Any | None:
+    async def get_by_id(self, room_id: int) -> Room | None:
         """The method getting room by provided id.
 
         Args:
@@ -40,11 +61,10 @@ class RoomRepository(IRoomRepository):
         Returns:
             Any | None: The room details.
         """
-        room = await self._get_by_id(room_id)
 
-        return Room.from_record(room) if room else None
+        return await self.parse_record(await self._get_by_id(room_id))
 
-    async def add_room(self, data: RoomIn) -> Any | None:
+    async def add_room(self, data: RoomIn) -> Room | None:
         """The method adding new room to the data storage.
 
         Args:
@@ -67,7 +87,7 @@ class RoomRepository(IRoomRepository):
             self,
             room_id: int,
             data: RoomIn,
-    ) -> Any | None:
+    ) -> Room | None:
         """The method updating room data in the data storage.
 
         Args:
@@ -129,3 +149,29 @@ class RoomRepository(IRoomRepository):
         )
 
         return await database.fetch_one(query)
+
+    async def parse_record(self, room_record: Record) -> Room:
+        result_dict = dict(room_record)
+
+        sub_query = (
+            select(rooms_accessibility_options_table)
+            .where(rooms_accessibility_options_table.c.room_id == result_dict.get("id"))
+        )
+
+        sub_result = await database.fetch_all(sub_query)
+
+        accessibility_options = []
+        for room_accessibility_option in sub_result:
+            sub_sub_query = (
+                select(accessibility_options_table)
+                .where(accessibility_options_table.c.id == dict(room_accessibility_option).get("accessibility_option_id"))
+            )
+
+            sub_sub_result = await database.fetch_one(sub_sub_query)
+
+            accessibility_options.append(AccessibilityOption.from_record(sub_sub_result))
+
+        new_room = Room.from_record(room_record)
+        new_room.accessibility_options = accessibility_options
+
+        return new_room

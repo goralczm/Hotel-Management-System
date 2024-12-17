@@ -1,7 +1,10 @@
 """Module containing room-related domain models"""
+from typing import List
 
 from asyncpg import Record
 from pydantic import BaseModel, ConfigDict
+
+from hotel_management_system.core.domains.accessibility_option import AccessibilityOption
 
 
 class RoomIn(BaseModel):
@@ -12,6 +15,7 @@ class RoomIn(BaseModel):
 class Room(RoomIn):
     """Model representing room's attributes in the database."""
     id: int
+    accessibility_options: List[AccessibilityOption] = []
 
     model_config = ConfigDict(
         from_attributes=True,

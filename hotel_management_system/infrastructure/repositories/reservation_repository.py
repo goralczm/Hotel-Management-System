@@ -9,6 +9,7 @@ from hotel_management_system.core.repositories.i_reservation_repository import I
 from hotel_management_system.core.domains.reservation import Reservation, ReservationIn
 from hotel_management_system.db import (
     reservations_table,
+    reservation_rooms_table,
     database,
 )
 

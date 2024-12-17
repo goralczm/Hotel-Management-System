@@ -1,16 +1,16 @@
 """Module containing room repository abstractions."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Iterable
+from typing import Any, Iterable, List
 
-from hotel_management_system.core.domains.room import RoomIn
+from hotel_management_system.core.domains.room import RoomIn, Room
 
 
 class IRoomRepository(ABC):
     """An abstract class representing protocol of continent repository."""
 
     @abstractmethod
-    async def get_all_rooms(self) -> Iterable[Any]:
+    async def get_all_rooms(self) -> List[Room]:
         """The abstract getting all rooms from the data storage.
 
         Returns:
@@ -18,7 +18,25 @@ class IRoomRepository(ABC):
         """
 
     @abstractmethod
-    async def add_room(self, data: RoomIn) -> Any | None:
+    async def get_all_free_rooms(self) -> List[Room]:
+        """
+
+        :return:
+        """
+
+    @abstractmethod
+    async def get_by_id(self, room_id: int) -> Room | None:
+        """The method getting room by provided id.
+
+        Args:
+            room_id (int): The id of the room.
+
+        Returns:
+            roomDTO | None: The room details.
+        """
+
+    @abstractmethod
+    async def add_room(self, data: RoomIn) -> Room | None:
         """The abstract adding new room to the data storage.
 
         Args:
@@ -33,7 +51,7 @@ class IRoomRepository(ABC):
             self,
             room_id: int,
             data: RoomIn,
-    ) -> Any | None:
+    ) -> Room | None:
         """The abstract updating room data in the data storage.
 
         Args:

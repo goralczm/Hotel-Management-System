@@ -5,6 +5,9 @@ from typing import Optional, List
 from asyncpg import Record
 from pydantic import BaseModel, ConfigDict
 
+from hotel_management_system.core.domains.bill import Bill
+from hotel_management_system.core.domains.room import Room
+
 
 class ReservationIn(BaseModel):
     """Model representing reservation's DTO attributes."""
@@ -16,6 +19,8 @@ class ReservationIn(BaseModel):
 class Reservation(ReservationIn):
     """Model representing reservation's attributes in the database."""
     id: int
+    reserved_rooms: List[Room] = []
+    bills: List[Bill] = []
 
     model_config = ConfigDict(
         from_attributes=True,

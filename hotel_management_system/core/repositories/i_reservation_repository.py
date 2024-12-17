@@ -1,42 +1,42 @@
 """Module containing reservation repository abstractions."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Iterable
+from typing import List
 
-from hotel_management_system.core.domains.reservation import ReservationIn
+from hotel_management_system.core.domains.reservation import ReservationIn, Reservation
 
 
 class IReservationRepository(ABC):
     """An abstract class representing protocol of continent repository."""
 
     @abstractmethod
-    async def get_all_reservations(self) -> Iterable[Any]:
+    async def get_all_reservations(self) -> List[Reservation]:
         """The abstract getting all reservations from the data storage.
 
         Returns:
-            Iterable[Any]: Reservations in the data storage.
+            List[Reservation]: Reservations in the data storage.
         """
 
     @abstractmethod
-    async def get_by_id(self, reservation_id: int) -> Any | None:
+    async def get_by_id(self, reservation_id: int) -> Reservation | None:
         """The method getting reservation by provided id.
 
         Args:
             reservation_id (int): The id of the reservation.
 
         Returns:
-            Any | None: The reservation details.
+            Reservation | None: The reservation details.
         """
 
     @abstractmethod
-    async def add_reservation(self, data: ReservationIn) -> Any | None:
+    async def add_reservation(self, data: ReservationIn) -> Reservation | None:
         """The abstract adding new reservation to the data storage.
 
         Args:
             data (ReservationIn): The details of the new reservation.
 
         Returns:
-            Any | None: The newly added reservation.
+            Reservation | None: The newly added reservation.
         """
 
     @abstractmethod
@@ -44,7 +44,7 @@ class IReservationRepository(ABC):
             self,
             reservation_id: int,
             data: ReservationIn,
-    ) -> Any | None:
+    ) -> Reservation | None:
         """The abstract updating reservation data in the data storage.
 
         Args:
@@ -52,7 +52,7 @@ class IReservationRepository(ABC):
             data (ReservationIn): The details of the updated reservation.
 
         Returns:
-            Any | None: The updated reservation details.
+            Reservation | None: The updated reservation details.
         """
 
     @abstractmethod

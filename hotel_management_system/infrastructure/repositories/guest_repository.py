@@ -1,14 +1,17 @@
 """Module containing guest repository implementation."""
 
-from typing import Any, Iterable
+from typing import List
 
 from asyncpg import Record  # type: ignore
 from sqlalchemy import select
 
+from hotel_management_system.core.domains.accessibility_option import AccessibilityOption
 from hotel_management_system.core.repositories.i_guest_repository import IGuestRepository
 from hotel_management_system.core.domains.guest import Guest, GuestIn
 from hotel_management_system.db import (
     guests_table,
+    guests_accessibility_options_table,
+    accessibility_options_table,
     database,
 )
 
@@ -16,11 +19,11 @@ from hotel_management_system.db import (
 class GuestRepository(IGuestRepository):
     """A class representing continent DB repository."""
 
-    async def get_all_guests(self) -> Iterable[Any]:
+    async def get_all_guests(self) -> List[Guest]:
         """The method getting all guests from the data storage.
 
         Returns:
-            Iterable[Any]: guests in the data storage.
+            List[Guest]: guests in the data storage.
         """
 
         query = (
@@ -29,22 +32,21 @@ class GuestRepository(IGuestRepository):
         )
         guests = await database.fetch_all(query)
 
-        return [Guest.from_record(guest) for guest in guests]
+        return [await self.parse_record(guest) for guest in guests]
 
-    async def get_by_id(self, guest_id: int) -> Any | None:
+    async def get_by_id(self, guest_id: int) -> Guest | None:
         """The method getting guest by provided id.
 
         Args:
             guest_id (int): The id of the guest.
 
         Returns:
-            Any | None: The guest details.
+            Guest | None: The guest details.
         """
-        guest = await self._get_by_id(guest_id)
 
-        return Guest.from_record(guest) if guest else None
+        return await self.parse_record(await self._get_by_id(guest_id))
 
-    async def add_guest(self, data: GuestIn) -> Any | None:
+    async def add_guest(self, data: GuestIn) -> Guest | None:
         """The method adding new guest to the data storage.
 
         Args:
@@ -54,20 +56,20 @@ class GuestRepository(IGuestRepository):
             guest: Full details of the newly added guest.
 
         Returns:
-            Any | None: The newly added guest.
+            Guest | None: The newly added guest.
         """
 
         query = guests_table.insert().values(**data.model_dump())
         new_guest_id = await database.execute(query)
         new_guest = await self._get_by_id(new_guest_id)
 
-        return Guest(**dict(new_guest)) if new_guest else None
+        return await self.parse_record(new_guest)
 
     async def update_guest(
             self,
             guest_id: int,
             data: GuestIn,
-    ) -> Any | None:
+    ) -> Guest | None:
         """The method updating guest data in the data storage.
 
         Args:
@@ -75,7 +77,7 @@ class GuestRepository(IGuestRepository):
             data (guestIn): The details of the updated guest.
 
         Returns:
-            Any | None: The updated guest details.
+            Guest | None: The updated guest details.
         """
 
         if self._get_by_id(guest_id):
@@ -86,9 +88,7 @@ class GuestRepository(IGuestRepository):
             )
             await database.execute(query)
 
-            guest = await self._get_by_id(guest_id)
-
-            return Guest(**dict(guest)) if guest else None
+            return await self.get_by_id(guest_id)
 
         return None
 
@@ -119,7 +119,7 @@ class GuestRepository(IGuestRepository):
             guest_id (int): The ID of the guest.
 
         Returns:
-            Any | None: guest record if exists.
+            Guest | None: guest record if exists.
         """
 
         query = (
@@ -128,3 +128,29 @@ class GuestRepository(IGuestRepository):
         )
 
         return await database.fetch_one(query)
+
+    async def parse_record(self, guest_record: Record) -> Guest:
+        result_dict = dict(guest_record)
+
+        sub_query = (
+            select(guests_accessibility_options_table)
+            .where(guests_accessibility_options_table.c.guest_id == result_dict.get("id"))
+        )
+
+        sub_result = await database.fetch_all(sub_query)
+
+        accessibility_options = []
+        for guest_accessibility_option in sub_result:
+            sub_sub_query = (
+                select(accessibility_options_table)
+                .where(accessibility_options_table.c.id == dict(guest_accessibility_option).get("accessibility_option_id"))
+            )
+
+            sub_sub_result = await database.fetch_one(sub_sub_query)
+
+            accessibility_options.append(AccessibilityOption.from_record(sub_sub_result))
+
+        new_guest = Guest.from_record(guest_record)
+        new_guest.accessibility_options = accessibility_options
+
+        return new_guest

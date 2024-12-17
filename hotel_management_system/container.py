@@ -69,7 +69,9 @@ class Container(DeclarativeContainer):
 
     reservation_service = Factory(
         ReservationService,
-        repository=reservation_repository
+        reservation_repository=reservation_repository,
+        room_repository=room_repository,
+        reservation_room_repository=reservation_room_repository,
     )
 
     reservation_room_service = Factory(

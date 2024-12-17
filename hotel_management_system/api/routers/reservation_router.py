@@ -18,40 +18,27 @@ from hotel_management_system.core.services.i_room_service import IRoomService
 
 router = APIRouter()
 
+
 @router.post("/create_best_reservation", response_model=Reservation, status_code=201)
 @inject
 async def create_best_reservation(
         reservation: ReservationIn,
         number_of_rooms: int,
-        reservation_service: IReservationService = Depends(Provide[Container.reservation_service]),
         room_service: IRoomService = Depends(Provide[Container.room_service]),
-        reservation_room_service: IReservationRoomService = Depends(Provide[Container.reservation_room_service]),
         guest_service: IGuestService = Depends(Provide[Container.guest_service]),
-        bill_service: IBillService = Depends(Provide[Container.bill_service]),
-        pricing_detail_service: IPricingDetailService = Depends(Provide[Container.pricing_detail_service]),
-        room_accessibility_option_service: IRoomAccessibilityOptionService = Depends(Provide[Container.room_accessibility_option_service])
 ) -> dict:
     if not await guest_service.get_by_id(reservation.guest_id):
         raise HTTPException(status_code=404, detail=f"No guest with id: {reservation.guest_id}")
 
-    all_rooms = await room_service.get_all()
-    occupied_rooms = await reservation_room_service.get_all()
-
-    free_rooms = []
-    for room in all_rooms:
-        is_occupied = False
-        for occupied_room in occupied_rooms:
-            if room.id == occupied_room.room_id:
-                is_occupied = True
-                break
-
-        if not is_occupied:
-            free_rooms.append(room.id)
+    free_rooms = await room_service.get_all_free_rooms()
 
     if number_of_rooms > len(free_rooms):
-        raise HTTPException(status_code=404, detail="Not sufficient number of free rooms")
+        raise HTTPException(status_code=409, detail="Not sufficient number of free rooms")
 
-    return await create_reservation(reservation, free_rooms[:number_of_rooms])
+    room_ids_to_reserve = [room.id for room in free_rooms][:number_of_rooms]
+
+    return await create_reservation(reservation, room_ids_to_reserve)
+
 
 @router.post("/create", response_model=Reservation, status_code=201)
 @inject
