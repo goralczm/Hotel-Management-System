@@ -54,7 +54,9 @@ class Container(DeclarativeContainer):
 
     room_service = Factory(
         RoomService,
-        repository=room_repository
+        room_repository=room_repository,
+        room_accessibility_option_repository=room_accessibility_option_repository,
+        accessibility_option_repository=accessibility_option_repository
     )
 
     room_accessibility_option_service = Factory(

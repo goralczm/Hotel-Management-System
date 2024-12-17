@@ -1,8 +1,11 @@
 """Module containing continent service implementation."""
 
-from typing import Iterable, List
+from typing import List
 
 from hotel_management_system.core.domains.room import Room, RoomIn
+from hotel_management_system.core.repositories.i_accessibility_option_repository import IAccessibilityOptionRepository
+from hotel_management_system.core.repositories.i_room_accessibility_option_repository import \
+    IRoomAccessibilityOptionRepository
 from hotel_management_system.core.repositories.i_room_repository import IRoomRepository
 from hotel_management_system.core.services.i_room_service import IRoomService
 
@@ -10,16 +13,24 @@ from hotel_management_system.core.services.i_room_service import IRoomService
 class RoomService(IRoomService):
     """A class implementing the room service."""
 
-    _repository: IRoomRepository
+    _room_repository: IRoomRepository
+    _room_accessibility_option_repository: IRoomAccessibilityOptionRepository
+    _accessibility_option_repository: IAccessibilityOptionRepository
 
-    def __init__(self, repository: IRoomRepository) -> None:
+    def __init__(self,
+                 room_repository: IRoomRepository,
+                 room_accessibility_option_repository: IRoomAccessibilityOptionRepository,
+                 accessibility_option_repository: IAccessibilityOptionRepository
+                 ) -> None:
         """The initializer of the `room service`.
 
         Args:
             repository (IroomRepository): The reference to the repository.
         """
 
-        self._repository = repository
+        self._room_repository = room_repository
+        self._room_accessibility_option_repository = room_accessibility_option_repository
+        self._accessibility_option_repository = accessibility_option_repository
 
     async def get_all(self) -> List[Room]:
         """The method getting all rooms from the repository.
@@ -28,7 +39,7 @@ class RoomService(IRoomService):
             Iterable[roomDTO]: All rooms.
         """
 
-        return await self._repository.get_all_rooms()
+        return await self._room_repository.get_all_rooms()
 
     async def get_all_free_rooms(self) -> List[Room]:
         """
@@ -36,7 +47,7 @@ class RoomService(IRoomService):
         :return:
         """
 
-        return await self._repository.get_all_free_rooms()
+        return await self._room_repository.get_all_free_rooms()
 
     async def get_by_id(self, room_id: int) -> Room | None:
         """The method getting room by provided id.
@@ -48,7 +59,21 @@ class RoomService(IRoomService):
             roomDTO | None: The room details.
         """
 
-        return await self._repository.get_by_id(room_id)
+        room = await self._room_repository.get_by_id(room_id)
+
+        if room:
+            room_accessibility_options = await self._room_accessibility_option_repository.get_by_room_id(room.id)
+
+            accessibility_options = []
+
+            for room_accessibility_option in room_accessibility_options:
+                accessibility_option = await self._accessibility_option_repository.get_by_id(room_accessibility_option.accessibility_option_id)
+
+                accessibility_options.append(accessibility_option)
+
+            room.accessibility_options = accessibility_options
+
+        return room
 
     async def add_room(self, data: RoomIn) -> Room | None:
         """The method adding new room to the data storage.
@@ -60,7 +85,7 @@ class RoomService(IRoomService):
             room | None: Full details of the newly added room.
         """
 
-        return await self._repository.add_room(data)
+        return await self._room_repository.add_room(data)
 
     async def update_room(
             self,
@@ -77,7 +102,7 @@ class RoomService(IRoomService):
             room | None: The updated room details.
         """
 
-        return await self._repository.update_room(
+        return await self._room_repository.update_room(
             room_id=room_id,
             data=data,
         )
@@ -92,4 +117,4 @@ class RoomService(IRoomService):
             bool: Success of the operation.
         """
 
-        return await self._repository.delete_room(room_id)
+        return await self._room_repository.delete_room(room_id)

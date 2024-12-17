@@ -1,23 +1,23 @@
 """Module containing room_accessibility_option repository abstractions."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Iterable
+from typing import List
 
-from hotel_management_system.core.domains.room_accessibility_option import RoomAccessibilityOptionIn
+from hotel_management_system.core.domains.room_accessibility_option import RoomAccessibilityOption
 
 class IRoomAccessibilityOptionRepository(ABC):
     """An abstract class representing protocol of continent repository."""
 
     @abstractmethod
-    async def get_all_room_accessibility_options(self) -> Iterable[Any]:
+    async def get_all_room_accessibility_options(self) -> List[RoomAccessibilityOption]:
         """The abstract getting all room_accessibility_options from the data storage.
 
         Returns:
-            Iterable[Any]: Guests in the data storage.
+            List[Room]: Guests in the data storage.
         """
 
     @abstractmethod
-    async def get_by_id(self, room_id: int, accessibility_option_id: int) -> Any | None:
+    async def get_by_id(self, room_id: int, accessibility_option_id: int) -> RoomAccessibilityOption | None:
         """The method getting room_accessibility_option by provided id.
 
         Args:
@@ -29,14 +29,25 @@ class IRoomAccessibilityOptionRepository(ABC):
         """
 
     @abstractmethod
-    async def add_room_accessibility_option(self, data: RoomAccessibilityOptionIn) -> Any | None:
+    async def get_by_room_id(self, room_id: int) -> RoomAccessibilityOption | None:
+        """The method getting room_accessibility_option by provided id.
+
+        Args:
+            room_id (int): The id of the room
+
+        Returns:
+            room_accessibility_optionDTO | None: The room_accessibility_option details.
+        """
+
+    @abstractmethod
+    async def add_room_accessibility_option(self, data: RoomAccessibilityOption) -> RoomAccessibilityOption | None:
         """The abstract adding new room_accessibility_option to the data storage.
 
         Args:
             data (GuestIn): The details of the new room_accessibility_option.
 
         Returns:
-            Any | None: The newly added room_accessibility_option.
+            Room | None: The newly added room_accessibility_option.
         """
 
     @abstractmethod
@@ -44,8 +55,8 @@ class IRoomAccessibilityOptionRepository(ABC):
             self,
             room_id: int,
             accessibility_option_id: int,
-            data: RoomAccessibilityOptionIn,
-    ) -> Any | None:
+            data: RoomAccessibilityOption,
+    ) -> RoomAccessibilityOption | None:
         """The abstract updating room_accessibility_option data in the data storage.
 
         Args:
@@ -54,7 +65,7 @@ class IRoomAccessibilityOptionRepository(ABC):
             data (GuestIn): The details of the updated room_accessibility_option.
 
         Returns:
-            Any | None: The updated room_accessibility_option details.
+            Room | None: The updated room_accessibility_option details.
         """
 
     @abstractmethod

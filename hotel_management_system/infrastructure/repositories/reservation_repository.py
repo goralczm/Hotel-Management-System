@@ -28,6 +28,7 @@ class ReservationRepository(IReservationRepository):
             select(reservations_table)
             .order_by(reservations_table.c.start_date.asc())
         )
+
         reservations = await database.fetch_all(query)
 
         return [Reservation.from_record(reservation) for reservation in reservations]
@@ -60,9 +61,8 @@ class ReservationRepository(IReservationRepository):
 
         query = reservations_table.insert().values(**data.model_dump())
         new_reservation_id = await database.execute(query)
-        new_reservation = await self._get_by_id(new_reservation_id)
 
-        return Reservation(**dict(new_reservation)) if new_reservation else None
+        return await self._get_by_id(new_reservation_id)
 
     async def update_reservation(
             self,
@@ -87,9 +87,7 @@ class ReservationRepository(IReservationRepository):
             )
             await database.execute(query)
 
-            reservation = await self._get_by_id(reservation_id)
-
-            return Reservation(**dict(reservation)) if reservation else None
+            return await self.get_by_id(reservation_id)
 
         return None
 

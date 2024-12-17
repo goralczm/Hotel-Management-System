@@ -44,6 +44,25 @@ class RoomAccessibilityOptionRepository(IRoomAccessibilityOptionRepository):
 
         return RoomAccessibilityOption.from_record(room_accessibility_option) if room_accessibility_option else None
 
+    async def get_by_room_id(self, room_id: int) -> Any | None:
+        """The method getting room_accessibility_option by provided id.
+
+        Args:
+            room_id (int): The id of the room
+
+        Returns:
+            room_accessibility_optionDTO | None: The room_accessibility_option details.
+        """
+
+        query = (
+            rooms_accessibility_options_table.select()
+            .where(rooms_accessibility_options_table.c.room_id == room_id)
+        )
+
+        rooms_accessibility_options = await database.fetch_all(query)
+
+        return [RoomAccessibilityOption.from_record(rooms_accessibility_option) for rooms_accessibility_option in rooms_accessibility_options]
+
     async def add_room_accessibility_option(self, data: RoomAccessibilityOptionIn) -> Any | None:
         """The method adding new room_accessibility_option to the data storage.
 

@@ -91,7 +91,7 @@ async def create_reservation(
             reservation_id=new_reservation.id
         ))
 
-    return new_reservation.model_dump() if new_reservation else {}
+    return new_reservation if new_reservation else {}
 
 
 @router.get("/all", response_model=Iterable[Reservation], status_code=200)
@@ -134,7 +134,7 @@ async def get_reservation_by_id(
     """
 
     if reservation := await service.get_by_id(reservation_id):
-        return reservation.model_dump()
+        return reservation
 
     raise HTTPException(status_code=404, detail="Reservation not found")
 
@@ -165,7 +165,7 @@ async def update_reservation(
             reservation_id=reservation_id,
             data=updated_reservation,
         )
-        return {**updated_reservation.model_dump(), "id": reservation_id}
+        return {**updated_reservation, "id": reservation_id}
 
     raise HTTPException(status_code=404, detail="Reservation not found")
 

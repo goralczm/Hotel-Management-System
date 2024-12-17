@@ -43,6 +43,18 @@ class RoomAccessibilityOptionService(IRoomAccessibilityOptionService):
 
         return await self._repository.get_by_id(room_id, accessibility_option_id)
 
+    async def get_by_room_id(self, room_id: int) -> RoomAccessibilityOption | None:
+        """The method getting room_accessibility_option by provided id.
+
+        Args:
+            room_id (int): The id of the room
+
+        Returns:
+            room_accessibility_optionDTO | None: The room_accessibility_option details.
+        """
+
+        return await self._repository.get_by_room_id(room_id)
+
     async def add_room_accessibility_option(self, data: RoomAccessibilityOptionIn) -> RoomAccessibilityOption | None:
         """The method adding new room_accessibility_option to the data storage.
 
