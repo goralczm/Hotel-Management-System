@@ -39,3 +39,10 @@ class Room(RoomIn):
             alias=record_dict.get("alias")
         )
 
+    def correlation_coefficient(self, accessibility_options: List[AccessibilityOption]) -> int:
+        coefficient = 0
+        for accessibility_option in self.accessibility_options:
+            if accessibility_option in accessibility_options:
+                coefficient += 1
+
+        return coefficient

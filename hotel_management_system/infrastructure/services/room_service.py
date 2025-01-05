@@ -39,15 +39,20 @@ class RoomService(IRoomService):
             Iterable[roomDTO]: All rooms.
         """
 
-        return await self._room_repository.get_all_rooms()
+        all_rooms = await self._room_repository.get_all_rooms()
+
+        return [await self.parse_room(room) for room in all_rooms]
 
     async def get_all_free_rooms(self) -> List[Room]:
+        """The method getting all free rooms from the repository.
+
+        Returns:
+            Iterable[roomDTO]: All free rooms.
         """
 
-        :return:
-        """
+        free_rooms = await self._room_repository.get_all_free_rooms()
 
-        return await self._room_repository.get_all_free_rooms()
+        return [await self.parse_room(room) for room in free_rooms]
 
     async def get_by_id(self, room_id: int) -> Room | None:
         """The method getting room by provided id.
@@ -59,21 +64,9 @@ class RoomService(IRoomService):
             roomDTO | None: The room details.
         """
 
-        room = await self._room_repository.get_by_id(room_id)
-
-        if room:
-            room_accessibility_options = await self._room_accessibility_option_repository.get_by_room_id(room.id)
-
-            accessibility_options = []
-
-            for room_accessibility_option in room_accessibility_options:
-                accessibility_option = await self._accessibility_option_repository.get_by_id(room_accessibility_option.accessibility_option_id)
-
-                accessibility_options.append(accessibility_option)
-
-            room.accessibility_options = accessibility_options
-
-        return room
+        return await self.parse_room(
+            await self._room_repository.get_by_id(room_id)
+        )
 
     async def add_room(self, data: RoomIn) -> Room | None:
         """The method adding new room to the data storage.
@@ -85,7 +78,9 @@ class RoomService(IRoomService):
             room | None: Full details of the newly added room.
         """
 
-        return await self._room_repository.add_room(data)
+        return await self.parse_room(
+            await self._room_repository.add_room(data)
+        )
 
     async def update_room(
             self,
@@ -102,9 +97,11 @@ class RoomService(IRoomService):
             room | None: The updated room details.
         """
 
-        return await self._room_repository.update_room(
-            room_id=room_id,
-            data=data,
+        return await self.parse_room(
+            await self._room_repository.update_room(
+                room_id=room_id,
+                data=data,
+            )
         )
 
     async def delete_room(self, room_id: int) -> bool:
@@ -118,3 +115,18 @@ class RoomService(IRoomService):
         """
 
         return await self._room_repository.delete_room(room_id)
+
+    async def parse_room(self, room: Room) -> Room:
+        if room:
+            room_accessibility_options = await self._room_accessibility_option_repository.get_by_room_id(room.id)
+
+            accessibility_options = []
+
+            for room_accessibility_option in room_accessibility_options:
+                accessibility_option = await self._accessibility_option_repository.get_by_id(room_accessibility_option.accessibility_option_id)
+
+                accessibility_options.append(accessibility_option)
+
+            room.accessibility_options = accessibility_options
+
+        return room

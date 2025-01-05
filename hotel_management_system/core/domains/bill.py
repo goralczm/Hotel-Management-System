@@ -1,9 +1,9 @@
 """Module containing airport-related domain models"""
 
-from typing import Optional
-
 from asyncpg import Record
 from pydantic import BaseModel, ConfigDict
+
+from hotel_management_system.core.domains.pricing_detail import PricingDetail
 
 
 class BillIn(BaseModel):
@@ -14,6 +14,7 @@ class BillIn(BaseModel):
 
 
 class Bill(BillIn):
+    pricing_detail: PricingDetail = None
     """Model representing bill's attributes in the database."""
 
     model_config = ConfigDict(

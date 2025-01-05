@@ -32,7 +32,7 @@ class GuestRepository(IGuestRepository):
         )
         guests = await database.fetch_all(query)
 
-        return [await self.parse_record(guest) for guest in guests]
+        return [Guest.from_record(guest) for guest in guests]
 
     async def get_by_id(self, guest_id: int) -> Guest | None:
         """The method getting guest by provided id.
@@ -44,7 +44,9 @@ class GuestRepository(IGuestRepository):
             Guest | None: The guest details.
         """
 
-        return await self.parse_record(await self._get_by_id(guest_id))
+        guest = await self._get_by_id(guest_id)
+
+        return Guest.from_record(guest) if guest else None
 
     async def add_guest(self, data: GuestIn) -> Guest | None:
         """The method adding new guest to the data storage.
@@ -61,9 +63,8 @@ class GuestRepository(IGuestRepository):
 
         query = guests_table.insert().values(**data.model_dump())
         new_guest_id = await database.execute(query)
-        new_guest = await self._get_by_id(new_guest_id)
 
-        return await self.parse_record(new_guest)
+        return await self.get_by_id(new_guest_id)
 
     async def update_guest(
             self,
@@ -128,29 +129,3 @@ class GuestRepository(IGuestRepository):
         )
 
         return await database.fetch_one(query)
-
-    async def parse_record(self, guest_record: Record) -> Guest:
-        result_dict = dict(guest_record)
-
-        sub_query = (
-            select(guests_accessibility_options_table)
-            .where(guests_accessibility_options_table.c.guest_id == result_dict.get("id"))
-        )
-
-        sub_result = await database.fetch_all(sub_query)
-
-        accessibility_options = []
-        for guest_accessibility_option in sub_result:
-            sub_sub_query = (
-                select(accessibility_options_table)
-                .where(accessibility_options_table.c.id == dict(guest_accessibility_option).get("accessibility_option_id"))
-            )
-
-            sub_sub_result = await database.fetch_one(sub_sub_query)
-
-            accessibility_options.append(AccessibilityOption.from_record(sub_sub_result))
-
-        new_guest = Guest.from_record(guest_record)
-        new_guest.accessibility_options = accessibility_options
-
-        return new_guest

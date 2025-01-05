@@ -1,7 +1,7 @@
 """Module containing bill repository abstractions."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Iterable, List
+from typing import List
 
 from hotel_management_system.core.domains.bill import BillIn, Bill
 
@@ -10,15 +10,15 @@ class IBillRepository(ABC):
     """An abstract class representing protocol of continent repository."""
 
     @abstractmethod
-    async def get_all_bills(self) -> Iterable[Any]:
+    async def get_all_bills(self) -> List[Bill]:
         """The abstract getting all bills from the data storage.
 
         Returns:
-            Iterable[Any]: Guests in the data storage.
+            List[Bill]: Guests in the data storage.
         """
 
     @abstractmethod
-    async def get_by_id(self, room_id: int, pricing_detail_id: int) -> Any | None:
+    async def get_by_id(self, room_id: int, pricing_detail_id: int) -> Bill | None:
         """The method getting bill by provided id.
 
         Args:
@@ -30,7 +30,7 @@ class IBillRepository(ABC):
         """
 
     @abstractmethod
-    async def get_by_room_id(self, room_id: int) -> Any | None:
+    async def get_by_room_id(self, room_id: int) -> List[Bill] | None:
         """The method getting bill by provided room_id.
 
         Args:
@@ -41,7 +41,7 @@ class IBillRepository(ABC):
         """
 
     @abstractmethod
-    async def get_by_pricing_detail_id(self, pricing_detail_id: int) -> Any | None:
+    async def get_by_pricing_detail_id(self, pricing_detail_id: int) -> List[Bill] | None:
         """The method getting bill's by provided pricing_detail id.
 
         Args:
@@ -63,14 +63,14 @@ class IBillRepository(ABC):
         """
 
     @abstractmethod
-    async def add_bill(self, data: BillIn) -> Any | None:
+    async def add_bill(self, data: BillIn) -> Bill | None:
         """The abstract adding new bill to the data storage.
 
         Args:
             data (GuestIn): The details of the new bill.
 
         Returns:
-            Any | None: The newly added bill.
+            Bill | None: The newly added bill.
         """
 
     @abstractmethod
@@ -79,7 +79,7 @@ class IBillRepository(ABC):
             room_id: int,
             pricing_detail_id: int,
             data: BillIn,
-    ) -> Any | None:
+    ) -> Bill | None:
         """The abstract updating bill data in the data storage.
 
         Args:
@@ -88,7 +88,7 @@ class IBillRepository(ABC):
             data (GuestIn): The details of the updated bill.
 
         Returns:
-            Any | None: The updated bill details.
+            Bill | None: The updated bill details.
         """
 
     @abstractmethod

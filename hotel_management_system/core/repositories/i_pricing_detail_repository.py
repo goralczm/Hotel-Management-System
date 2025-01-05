@@ -1,7 +1,7 @@
 """Module containing pricing_detail repository abstractions."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Iterable
+from typing import List
 
 from hotel_management_system.core.domains.pricing_detail import PricingDetailIn, PricingDetail
 
@@ -10,22 +10,33 @@ class IPricingDetailRepository(ABC):
     """An abstract class representing protocol of continent repository."""
 
     @abstractmethod
-    async def get_all_pricing_details(self) -> Iterable[Any]:
+    async def get_all_pricing_details(self) -> List[PricingDetail]:
         """The abstract getting all pricing_details from the data storage.
 
         Returns:
-            Iterable[Any]: PricingDetails in the data storage.
+            List[PricingDetail]: PricingDetails in the data storage.
         """
 
     @abstractmethod
-    async def add_pricing_detail(self, data: PricingDetailIn) -> Any | None:
+    async def get_by_id(self, pricing_detail_id: int) -> PricingDetail | None:
+        """The method getting pricing_detail by provided id.
+
+        Args:
+            pricing_detail_id (int): The id of the pricing_detail.
+
+        Returns:
+            pricing_detailDTO | None: The pricing_detail details.
+        """
+
+    @abstractmethod
+    async def add_pricing_detail(self, data: PricingDetailIn) -> PricingDetail | None:
         """The abstract adding new pricing_detail to the data storage.
 
         Args:
             data (PricingDetailIn): The details of the new pricing_detail.
 
         Returns:
-            Any | None: The newly added pricing_detail.
+            PricingDetail | None: The newly added pricing_detail.
         """
 
     @abstractmethod
@@ -33,7 +44,7 @@ class IPricingDetailRepository(ABC):
             self,
             pricing_detail_id: int,
             data: PricingDetailIn,
-    ) -> Any | None:
+    ) -> PricingDetail | None:
         """The abstract updating pricing_detail data in the data storage.
 
         Args:
@@ -41,7 +52,7 @@ class IPricingDetailRepository(ABC):
             data (PricingDetailIn): The details of the updated pricing_detail.
 
         Returns:
-            Any | None: The updated pricing_detail details.
+            PricingDetail | None: The updated pricing_detail details.
         """
 
     @abstractmethod

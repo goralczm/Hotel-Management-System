@@ -35,7 +35,20 @@ async def create_best_reservation(
     if number_of_rooms > len(free_rooms):
         raise HTTPException(status_code=409, detail="Not sufficient number of free rooms")
 
-    room_ids_to_reserve = [room.id for room in free_rooms][:number_of_rooms]
+    guest = await guest_service.get_by_id(reservation.guest_id)
+
+    sorted_rooms = []
+
+    if len(guest.accessibility_options) > 0:
+        sorted_rooms = sorted(free_rooms,
+                              key=lambda room: room.correlation_coefficient(guest.accessibility_options),
+                              reverse=True)
+    else:
+        sorted_rooms = sorted(free_rooms,
+                              key=lambda room: len(room.accessibility_options) == 0,
+                              reverse=True)
+
+    room_ids_to_reserve = [room.id for room in sorted_rooms][:number_of_rooms]
 
     return await create_reservation(reservation, room_ids_to_reserve)
 
@@ -122,7 +135,7 @@ async def get_all_reservations(
 async def get_reservation_by_id(
         reservation_id: int,
         service: IReservationService = Depends(Provide[Container.reservation_service]),
-) -> dict | None:
+) -> Reservation | None:
     """An endpoint for getting reservation by id.
 
     Args:
@@ -133,10 +146,43 @@ async def get_reservation_by_id(
         dict | None: The reservation details.
     """
 
-    if reservation := await service.get_by_id(reservation_id):
-        return reservation
+    reservation = await service.get_by_id(reservation_id)
 
-    raise HTTPException(status_code=404, detail="Reservation not found")
+    if not reservation:
+        raise HTTPException(status_code=404, detail="Reservation not found")
+
+    return reservation
+
+
+@router.get(
+    "/{reservation_id}/cost",
+    response_model=dict,
+    status_code=200,
+)
+@inject
+async def get_reservation_cost_by_id(
+        reservation_id: int,
+        service: IReservationService = Depends(Provide[Container.reservation_service]),
+) -> dict:
+    """An endpoint for getting reservation by id.
+
+    Args:
+        reservation_id (int): The id of the reservation.
+        service (IReservationService, optional): The injected service dependency.
+
+    Returns:
+        dict | None: The reservation details.
+    """
+    reservation = await service.get_by_id(reservation_id)
+
+    if not reservation:
+        raise HTTPException(status_code=404, detail="Reservation not found")
+
+    cost = 0.0
+    for bill in reservation.bills:
+        cost += bill.pricing_detail.price
+
+    return {"total_cost": cost}
 
 
 @router.put("/{reservation_id}", response_model=Reservation, status_code=201)

@@ -1,31 +1,42 @@
 """Module containing guest repository abstractions."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Iterable
+from typing import List
 
-from hotel_management_system.core.domains.guest import GuestIn
+from hotel_management_system.core.domains.guest import GuestIn, Guest
 
 
 class IGuestRepository(ABC):
     """An abstract class representing protocol of continent repository."""
 
     @abstractmethod
-    async def get_all_guests(self) -> Iterable[Any]:
+    async def get_all_guests(self) -> List[Guest]:
         """The abstract getting all guests from the data storage.
 
         Returns:
-            Iterable[Any]: Guests in the data storage.
+            List[Guest]: Guests in the data storage.
         """
 
     @abstractmethod
-    async def add_guest(self, data: GuestIn) -> Any | None:
+    async def get_by_id(self, guest_id: int) -> Guest | None:
+        """The method getting guest by provided id.
+
+        Args:
+            guest_id (int): The id of the guest.
+
+        Returns:
+            guestDTO | None: The guest details.
+        """
+
+    @abstractmethod
+    async def add_guest(self, data: GuestIn) -> Guest | None:
         """The abstract adding new guest to the data storage.
 
         Args:
             data (GuestIn): The details of the new guest.
 
         Returns:
-            Any | None: The newly added guest.
+            Guest | None: The newly added guest.
         """
 
     @abstractmethod
@@ -33,7 +44,7 @@ class IGuestRepository(ABC):
             self,
             guest_id: int,
             data: GuestIn,
-    ) -> Any | None:
+    ) -> Guest | None:
         """The abstract updating guest data in the data storage.
 
         Args:
@@ -41,7 +52,7 @@ class IGuestRepository(ABC):
             data (GuestIn): The details of the updated guest.
 
         Returns:
-            Any | None: The updated guest details.
+            Guest | None: The updated guest details.
         """
 
     @abstractmethod

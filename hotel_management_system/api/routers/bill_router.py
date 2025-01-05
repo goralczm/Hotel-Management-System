@@ -49,25 +49,6 @@ async def create_bill(
     return new_bill.model_dump() if new_bill else {}
 
 
-@router.get("/price/{reservation_id}/", response_model=dict, status_code=200)
-@inject
-async def get_total_price_for_reservation(
-        reservation_id: int,
-        pricing_detail_service: IPricingDetailService = Depends(Provide[Container.pricing_detail_service]),
-        bill_service: IBillService = Depends(Provide[Container.bill_service]),
-) -> dict:
-    bills = await bill_service.get_by_reservation_id(reservation_id)
-
-    total_sum = 0
-    for bill in bills:
-        pricing_detail = await pricing_detail_service.get_by_id(bill.pricing_detail_id)
-
-        if pricing_detail:
-            total_sum += pricing_detail.price
-
-    return {"total_price": total_sum}
-
-
 @router.get("/all", response_model=Iterable[Bill], status_code=200)
 @inject
 async def get_all_bills(

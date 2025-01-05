@@ -43,8 +43,12 @@ async def main(
         price=200.00
     ))
 
-    sample_accessibility_option = await accessibility_option_service.add_accessibility_option(AccessibilityOptionIn(
+    sample_accessibility_option_1 = await accessibility_option_service.add_accessibility_option(AccessibilityOptionIn(
         name="Bezpierzowy"
+    ))
+
+    sample_accessibility_option_2 = await accessibility_option_service.add_accessibility_option(AccessibilityOptionIn(
+        name="Niepalący"
     ))
 
     sample_guest = await guest_service.add_guest(GuestIn(
@@ -60,16 +64,39 @@ async def main(
 
     await guest_accessibility_option_service.add_guest_accessibility_option(GuestAccessibilityOptionIn(
         guest_id=sample_guest.id,
-        accessibility_option_id=sample_accessibility_option.id
+        accessibility_option_id=sample_accessibility_option_1.id
     ))
 
-    sample_room = await room_service.add_room(RoomIn(
+    await guest_accessibility_option_service.add_guest_accessibility_option(GuestAccessibilityOptionIn(
+        guest_id=sample_guest.id,
+        accessibility_option_id=sample_accessibility_option_2.id
+    ))
+
+    sample_room_1 = await room_service.add_room(RoomIn(
         alias="A1"
     ))
 
+    sample_room_2 = await room_service.add_room(RoomIn(
+        alias="A2"
+    ))
+
+    await room_service.add_room(RoomIn(
+        alias="A3"
+    ))
+
     await room_accessibility_option_service.add_room_accessibility_option(RoomAccessibilityOptionIn(
-        room_id=sample_room.id,
-        accessibility_option_id=sample_accessibility_option.id
+        room_id=sample_room_1.id,
+        accessibility_option_id=sample_accessibility_option_1.id
+    ))
+
+    await room_accessibility_option_service.add_room_accessibility_option(RoomAccessibilityOptionIn(
+        room_id=sample_room_2.id,
+        accessibility_option_id=sample_accessibility_option_1.id
+    ))
+
+    await room_accessibility_option_service.add_room_accessibility_option(RoomAccessibilityOptionIn(
+        room_id=sample_room_2.id,
+        accessibility_option_id=sample_accessibility_option_2.id
     ))
 
     await reservation_router.create_best_reservation(ReservationIn(
