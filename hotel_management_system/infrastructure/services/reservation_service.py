@@ -60,6 +60,18 @@ class ReservationService(IReservationService):
             await self._reservation_repository.get_by_id(reservation_id)
         )
 
+    async def get_by_month(self, month_number: int) -> List[Reservation]:
+        """The method getting reservations made in the provided month
+
+        Args:
+            month_number (int): The month number
+
+        Returns:
+            List[Reservation]: The reservations made in provided month
+        """
+
+        return [await self.parse_reservation(reservation) for reservation in await self._reservation_repository.get_by_month(month_number)]
+
     async def add_reservation(self, data: ReservationIn) -> Reservation | None:
         """The method adding new reservation to the data storage.
 

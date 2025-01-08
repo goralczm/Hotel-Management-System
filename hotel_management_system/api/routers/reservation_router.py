@@ -26,7 +26,7 @@ async def create_best_reservation(
         number_of_rooms: int,
         room_service: IRoomService = Depends(Provide[Container.room_service]),
         guest_service: IGuestService = Depends(Provide[Container.guest_service]),
-) -> dict:
+) -> Reservation | dict:
     if not await guest_service.get_by_id(reservation.guest_id):
         raise HTTPException(status_code=404, detail=f"No guest with id: {reservation.guest_id}")
 
@@ -64,7 +64,7 @@ async def create_reservation(
         guest_service: IGuestService = Depends(Provide[Container.guest_service]),
         bill_service: IBillService = Depends(Provide[Container.bill_service]),
         pricing_detail_service: IPricingDetailService = Depends(Provide[Container.pricing_detail_service]),
-) -> dict:
+) -> Reservation | dict:
     """An endpoint for adding new reservation.
 
     Args:
@@ -95,6 +95,7 @@ async def create_reservation(
     pricing_detail = await pricing_detail_service.get_by_name("Doba hotelowa")
 
     if not pricing_detail:
+        await reservation_service.delete_reservation(new_reservation.id)
         raise HTTPException(status_code=404, detail="No pricing detail found")
 
     for id in room_ids:
@@ -103,6 +104,8 @@ async def create_reservation(
             pricing_detail_id=pricing_detail.id,
             reservation_id=new_reservation.id
         ))
+
+    new_reservation = await reservation_service.get_by_id(new_reservation.id)
 
     return new_reservation if new_reservation else {}
 
@@ -178,9 +181,7 @@ async def get_reservation_cost_by_id(
     if not reservation:
         raise HTTPException(status_code=404, detail="Reservation not found")
 
-    cost = 0.0
-    for bill in reservation.bills:
-        cost += bill.pricing_detail.price
+    cost = reservation.get_cost()
 
     return {"total_cost": cost}
 

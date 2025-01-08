@@ -64,6 +64,7 @@ reservations_table = sqlalchemy.Table(
     sqlalchemy.Column("guest_id", sqlalchemy.ForeignKey("guests.id"), nullable=False),
     sqlalchemy.Column("start_date", sqlalchemy.Date),
     sqlalchemy.Column("end_date", sqlalchemy.Date),
+    sqlalchemy.Column("number_of_guests", sqlalchemy.Integer)
 )
 
 reservation_rooms_table = sqlalchemy.Table(
@@ -86,6 +87,18 @@ bills_table = sqlalchemy.Table(
     metadata,
     sqlalchemy.Column("room_id", sqlalchemy.ForeignKey("rooms.id"), nullable=False),
     sqlalchemy.Column("pricing_detail_id", sqlalchemy.ForeignKey("pricing_details.id"), nullable=False),
+    sqlalchemy.Column("reservation_id", sqlalchemy.ForeignKey("reservations.id"), nullable=False),
+)
+
+invoices_table = sqlalchemy.Table(
+    "invoices",
+    metadata,
+    sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column("date_of_issue", sqlalchemy.Date),
+    sqlalchemy.Column("first_name", sqlalchemy.String),
+    sqlalchemy.Column("last_name", sqlalchemy.String),
+    sqlalchemy.Column("address", sqlalchemy.String),
+    sqlalchemy.Column("nip", sqlalchemy.String),
     sqlalchemy.Column("reservation_id", sqlalchemy.ForeignKey("reservations.id"), nullable=False),
 )
 

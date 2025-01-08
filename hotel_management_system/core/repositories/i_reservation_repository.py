@@ -29,6 +29,17 @@ class IReservationRepository(ABC):
         """
 
     @abstractmethod
+    async def get_by_month(self, month_number: int) -> List[Reservation]:
+        """The method getting reservations made in the provided month
+
+        Args:
+            month_number (int): The month number
+
+        Returns:
+            List[Reservation]: The reservations made in provided month
+        """
+
+    @abstractmethod
     async def add_reservation(self, data: ReservationIn) -> Reservation | None:
         """The abstract adding new reservation to the data storage.
 

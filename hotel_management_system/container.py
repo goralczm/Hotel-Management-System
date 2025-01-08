@@ -8,6 +8,7 @@ from hotel_management_system.infrastructure.repositories.guest_accessibility_opt
     GuestAccessibilityOptionRepository
 from hotel_management_system.infrastructure.repositories.guest_repository import \
     GuestRepository
+from hotel_management_system.infrastructure.repositories.invoice_repository import InvoiceRepository
 from hotel_management_system.infrastructure.repositories.pricing_detail_repository import PricingDetailRepository
 from hotel_management_system.infrastructure.repositories.reservation_repository import ReservationRepository
 from hotel_management_system.infrastructure.repositories.reservation_room_repository import ReservationRoomRepository
@@ -20,6 +21,7 @@ from hotel_management_system.infrastructure.repositories.accessibility_option_re
     AccessibilityOptionRepository
 from hotel_management_system.infrastructure.services.accessibility_option_service import \
     AccessibilityOptionService
+from hotel_management_system.infrastructure.services.invoice_service import InvoiceService
 from hotel_management_system.infrastructure.services.pricing_detail_service import PricingDetailService
 from hotel_management_system.infrastructure.services.reservation_room_service import ReservationRoomService
 from hotel_management_system.infrastructure.services.reservation_service import ReservationService
@@ -41,6 +43,7 @@ class Container(DeclarativeContainer):
     reservation_room_repository = Singleton(ReservationRoomRepository)
     pricing_detail_repository = Singleton(PricingDetailRepository)
     bill_repository = Singleton(BillRepository)
+    invoice_repository = Singleton(InvoiceRepository)
 
     guest_service = Factory(
         GuestService,
@@ -93,4 +96,10 @@ class Container(DeclarativeContainer):
     pricing_detail_service = Factory(
         PricingDetailService,
         repository=pricing_detail_repository
+    )
+
+    invoice_service = Factory(
+        InvoiceService,
+        invoice_repository=invoice_repository,
+        reservation_service=reservation_service
     )

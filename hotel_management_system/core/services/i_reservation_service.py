@@ -1,7 +1,7 @@
 """Module containing reservation service abstractions."""
 
 from abc import ABC, abstractmethod
-from typing import Iterable
+from typing import Iterable, List
 
 from hotel_management_system.core.domains.reservation import Reservation, ReservationIn
 
@@ -26,6 +26,17 @@ class IReservationService(ABC):
 
         Returns:
             reservationDTO | None: The reservation details.
+        """
+
+    @abstractmethod
+    async def get_by_month(self, month_number: int) -> List[Reservation]:
+        """The method getting reservations made in the provided month
+
+        Args:
+            month_number (int): The month number
+
+        Returns:
+            List[Reservation]: The reservations made in provided month
         """
 
     @abstractmethod

@@ -14,6 +14,7 @@ class ReservationIn(BaseModel):
     guest_id: int
     start_date: datetime.date
     end_date: datetime.date
+    number_of_guests: int
 
 
 class Reservation(ReservationIn):
@@ -44,4 +45,12 @@ class Reservation(ReservationIn):
             guest_id=record_dict.get("guest_id"),
             start_date=record_dict.get("start_date"),
             end_date=record_dict.get("end_date"),
+            number_of_guests=record_dict.get("number_of_guests")
         )
+
+    def get_cost(self) -> float:
+        cost = 0.0
+        for bill in self.bills:
+            cost += bill.pricing_detail.price
+
+        return cost

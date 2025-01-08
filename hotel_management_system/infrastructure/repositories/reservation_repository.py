@@ -1,9 +1,9 @@
 """Module containing reservation repository implementation."""
 
-from typing import Any, Iterable
+from typing import Any, Iterable, List
 
 from asyncpg import Record  # type: ignore
-from sqlalchemy import select
+from sqlalchemy import select, extract
 
 from hotel_management_system.core.repositories.i_reservation_repository import IReservationRepository
 from hotel_management_system.core.domains.reservation import Reservation, ReservationIn
@@ -17,7 +17,7 @@ from hotel_management_system.db import (
 class ReservationRepository(IReservationRepository):
     """A class representing continent DB repository."""
 
-    async def get_all_reservations(self) -> Iterable[Any]:
+    async def get_all_reservations(self) -> List[Reservation]:
         """The method getting all reservations from the data storage.
 
         Returns:
@@ -45,6 +45,27 @@ class ReservationRepository(IReservationRepository):
         reservation = await self._get_by_id(reservation_id)
 
         return Reservation.from_record(reservation) if reservation else None
+
+    async def get_by_month(self, month_number: int) -> List[Reservation]:
+        """The method getting reservations made in the provided month
+
+        Args:
+            month_number (int): The month number
+
+        Returns:
+            List[Reservation]: The reservations made in provided month
+        """
+
+        # query = session.query(reservations_table).filter(extract('month', reservations_table.c.start_date) == month)
+
+        query = (
+            select(reservations_table)
+            .filter(extract('month', reservations_table.c.start_date) == month_number)
+        )
+
+        reservations = await database.fetch_all(query)
+
+        return [Reservation.from_record(reservation) for reservation in reservations]
 
     async def add_reservation(self, data: ReservationIn) -> Any | None:
         """The method adding new reservation to the data storage.
