@@ -6,6 +6,7 @@ from asyncpg import Record
 from pydantic import BaseModel, ConfigDict
 
 from hotel_management_system.core.domains.bill import Bill
+from hotel_management_system.core.domains.guest import Guest
 from hotel_management_system.core.domains.room import Room
 
 
@@ -16,10 +17,14 @@ class ReservationIn(BaseModel):
     end_date: datetime.date
     number_of_guests: int
 
+    def get_duration(self) -> int:
+        return (self.end_date - self.start_date).days
+
 
 class Reservation(ReservationIn):
     """Model representing reservation's attributes in the database."""
     id: int
+    guest: Guest = None
     reserved_rooms: List[Room] = []
     bills: List[Bill] = []
 

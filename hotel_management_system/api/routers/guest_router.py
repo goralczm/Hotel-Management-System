@@ -1,6 +1,6 @@
 """A module containing continent endpoints."""
 
-from typing import Iterable
+from typing import Iterable, List
 from dependency_injector.wiring import inject, Provide
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -52,11 +52,7 @@ async def get_all_guests(
     return guests
 
 
-@router.get(
-    "/{guest_id}",
-    response_model=Guest,
-    status_code=200,
-)
+@router.get("/{guest_id}", response_model=Guest, status_code=200)
 @inject
 async def get_guest_by_id(
         guest_id: int,
@@ -76,6 +72,66 @@ async def get_guest_by_id(
         return guest.model_dump()
 
     raise HTTPException(status_code=404, detail="Guest not found")
+
+
+@router.get("/first_name/{first_name}", response_model=List[Guest], status_code=200)
+@inject
+async def get_guest_by_first_name(
+        first_name: str,
+        guest_service: IGuestService = Depends(Provide[Container.guest_service]),
+) -> dict | None:
+    """An endpoint for getting guest by id.
+
+    Args:
+        guest_id (int): The id of the guest.
+        guest_service (IGuestService, optional): The injected service dependency.
+
+    Returns:
+        dict | None: The guest details.
+    """
+
+    if guest := await guest_service.get_by_first_name(first_name):
+        return guest
+
+
+@router.get("/last_name/{last_name}", response_model=List[Guest], status_code=200)
+@inject
+async def get_guest_by_last_name(
+        last_name: str,
+        guest_service: IGuestService = Depends(Provide[Container.guest_service]),
+) -> dict | None:
+    """An endpoint for getting guest by id.
+
+    Args:
+        guest_id (int): The id of the guest.
+        guest_service (IGuestService, optional): The injected service dependency.
+
+    Returns:
+        dict | None: The guest details.
+    """
+
+    if guest := await guest_service.get_by_last_name(last_name):
+        return guest
+
+
+@router.get("/needle/{needle}", response_model=List[Guest], status_code=200)
+@inject
+async def get_by_needle_in_name(
+        needle: str,
+        guest_service: IGuestService = Depends(Provide[Container.guest_service]),
+) -> dict | None:
+    """An endpoint for getting guest by id.
+
+    Args:
+        guest_id (int): The id of the guest.
+        guest_service (IGuestService, optional): The injected service dependency.
+
+    Returns:
+        dict | None: The guest details.
+    """
+
+    if guest := await guest_service.get_by_needle_in_name(needle):
+        return guest
 
 
 @router.put("/{guest_id}", response_model=Guest, status_code=201)

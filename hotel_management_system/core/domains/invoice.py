@@ -15,7 +15,11 @@ class InvoiceIn(BaseModel):
     address: str
     nip: str
     reservation_id: int
-
+    company_name: str = "Hotel Felix"
+    company_address: str = "ul. Słoneczna 15, 00-123 Warszawa"
+    company_nip: str = "123-456-78-90"
+    company_phone: str = "+48 221 234 567"
+    company_email: str = "recepcja@hotelfelix.pl"
 
 class Invoice(InvoiceIn):
     """Model representing pricing_detail's attributes in the database."""

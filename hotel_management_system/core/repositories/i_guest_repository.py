@@ -29,6 +29,30 @@ class IGuestRepository(ABC):
         """
 
     @abstractmethod
+    async def get_by_first_name(self, first_name: str) -> List[Guest] | None:
+        """
+
+        :param guest_name:
+        :return:
+        """
+
+    @abstractmethod
+    async def get_by_last_name(self, last_name: str) -> List[Guest] | None:
+        """
+
+        :param guest_name:
+        :return:
+        """
+
+    @abstractmethod
+    async def get_by_needle_in_name(self, needle: str) -> List[Guest] | None:
+        """
+
+        :param guest_name:
+        :return:
+        """
+
+    @abstractmethod
     async def add_guest(self, data: GuestIn) -> Guest | None:
         """The abstract adding new guest to the data storage.
 

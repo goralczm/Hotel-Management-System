@@ -1,31 +1,36 @@
-"""Module containing accessibility_option repository abstractions."""
+"""
+Module for managing accessibility_option repository abstractions.
+"""
 
 from abc import ABC, abstractmethod
 from typing import Any, Iterable
-
 from hotel_management_system.core.domains.accessibility_option import AccessibilityOptionIn, AccessibilityOption
 
 
 class IAccessibilityOptionRepository(ABC):
-    """An abstract class representing protocol of continent repository."""
+    """
+    Abstract base class defining the interface for an accessibility option repository.
+    """
 
     @abstractmethod
-    async def get_all_accessibility_options(self) -> Iterable[Any]:
-        """The abstract getting all accessibility_options from the data storage.
+    async def get_all_accessibility_options(self) -> Iterable[AccessibilityOption]:
+        """
+        Retrieve all accessibility options from the data storage.
 
         Returns:
-            Iterable[Any]: Guests in the data storage.
+            Iterable[AccessibilityOption]: A collection of all accessibility options.
         """
 
     @abstractmethod
     async def add_accessibility_option(self, data: AccessibilityOptionIn) -> AccessibilityOption | None:
-        """The abstract adding new accessibility_option to the data storage.
+        """
+        Add a new accessibility option to the data storage.
 
         Args:
-            data (GuestIn): The details of the new accessibility_option.
+            data (AccessibilityOptionIn): The data for the new accessibility option.
 
         Returns:
-            Any | None: The newly added accessibility_option.
+            AccessibilityOption | None: The newly added accessibility option, or None if the operation fails.
         """
 
     @abstractmethod
@@ -34,45 +39,49 @@ class IAccessibilityOptionRepository(ABC):
             accessibility_option_id: int,
             data: AccessibilityOptionIn,
     ) -> AccessibilityOption | None:
-        """The abstract updating accessibility_option data in the data storage.
+        """
+        Update an existing accessibility option in the data storage.
 
         Args:
-            accessibility_option_id (int): The id of the accessibility_option.
-            data (GuestIn): The details of the updated accessibility_option.
+            accessibility_option_id (int): The ID of the accessibility option to update.
+            data (AccessibilityOptionIn): The updated data for the accessibility option.
 
         Returns:
-            Any | None: The updated accessibility_option details.
+            AccessibilityOption | None: The updated accessibility option, or None if not found.
         """
 
     @abstractmethod
     async def delete_accessibility_option(self, accessibility_option_id: int) -> bool:
-        """The abstract updating removing accessibility_option from the data storage.
+        """
+        Remove an accessibility option from the data storage.
 
         Args:
-            accessibility_option_id (int): The id of the accessibility_option.
+            accessibility_option_id (int): The ID of the accessibility option to delete.
 
         Returns:
-            bool: Success of the operation.
+            bool: True if the operation is successful, False otherwise.
         """
 
     @abstractmethod
     async def get_by_id(self, accessibility_option_id: int) -> AccessibilityOption | None:
-        """The method getting accessibility_option by provided id.
+        """
+        Retrieve an accessibility option by its ID.
 
         Args:
-            accessibility_option_id (int): The id of the accessibility_option.
+            accessibility_option_id (int): The ID of the accessibility option.
 
         Returns:
-            Any | None: The accessibility_option details.
+            AccessibilityOption | None: The accessibility option details, or None if not found.
         """
 
     @abstractmethod
     async def get_by_name(self, accessibility_option_name: str) -> AccessibilityOption | None:
-        """The method getting accessibility_option by provided name.
+        """
+        Retrieve an accessibility option by its name.
 
         Args:
-            accessibility_option_name (str): The name of the accessibility_option.
+            accessibility_option_name (str): The name of the accessibility option.
 
         Returns:
-            accessibility_optionDTO | None: The accessibility_option details.
+            AccessibilityOption | None: The accessibility option details, or None if not found.
         """

@@ -1,5 +1,5 @@
 """Module containing room repository implementation."""
-
+from datetime import date
 from typing import List
 
 from asyncpg import Record  # type: ignore
@@ -26,21 +26,6 @@ class RoomRepository(IRoomRepository):
 
         query = (
             select(rooms_table)
-            .order_by(rooms_table.c.alias.asc())
-        )
-
-        rooms = await database.fetch_all(query)
-
-        return [Room.from_record(room) for room in rooms]
-
-    async def get_all_free_rooms(self) -> List[Room]:
-        reserved_rooms_subquery = (
-            select(reservation_rooms_table.c.room_id)
-        )
-
-        query = (
-            select(rooms_table)
-            .where(rooms_table.c.id.not_in(reserved_rooms_subquery))
             .order_by(rooms_table.c.alias.asc())
         )
 

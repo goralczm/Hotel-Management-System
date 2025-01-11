@@ -1,6 +1,6 @@
 """Module containing continent service implementation."""
 
-from typing import Iterable
+from typing import Iterable, List
 
 from hotel_management_system.core.domains.guest import Guest, GuestIn
 from hotel_management_system.core.repositories.i_guest_repository import IGuestRepository
@@ -31,7 +31,7 @@ class GuestService(IGuestService):
         self._accessibility_option_repository = accessibility_option_repository
         self._guest_accessibility_option_repository = guest_accessibility_option_repository
 
-    async def get_all(self) -> Iterable[Guest]:
+    async def get_all(self) -> List[Guest]:
         """The method getting all guests from the repository.
 
         Returns:
@@ -55,6 +55,45 @@ class GuestService(IGuestService):
         return await self.parse_guest(
             await self._guest_repository.get_by_id(guest_id)
         )
+
+    async def get_by_first_name(self, first_name: str) -> List[Guest] | None:
+        """
+
+        :param guest_name:
+        :return:
+        """
+
+        guests = await self._guest_repository.get_by_first_name(first_name)
+
+        return [
+            await self.parse_guest(guest) for guest in guests
+        ]
+
+    async def get_by_last_name(self, last_name: str) -> List[Guest] | None:
+        """
+
+        :param guest_name:
+        :return:
+        """
+
+        guests = await self._guest_repository.get_by_last_name(last_name)
+
+        return [
+            await self.parse_guest(guest) for guest in guests
+        ]
+
+    async def get_by_needle_in_name(self, needle: str) -> List[Guest] | None:
+        """
+
+        :param guest_name:
+        :return:
+        """
+
+        guests = await self._guest_repository.get_by_needle_in_name(needle)
+
+        return [
+            await self.parse_guest(guest) for guest in guests
+        ]
 
     async def add_guest(self, data: GuestIn) -> Guest | None:
         """The method adding new guest to the data storage.

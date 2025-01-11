@@ -1,5 +1,5 @@
 """Module containing continent service implementation."""
-
+from datetime import date
 from typing import List
 
 from hotel_management_system.core.domains.room import Room, RoomIn
@@ -7,6 +7,7 @@ from hotel_management_system.core.repositories.i_accessibility_option_repository
 from hotel_management_system.core.repositories.i_room_accessibility_option_repository import \
     IRoomAccessibilityOptionRepository
 from hotel_management_system.core.repositories.i_room_repository import IRoomRepository
+from hotel_management_system.core.services.i_reservation_room_service import IReservationRoomService
 from hotel_management_system.core.services.i_room_service import IRoomService
 
 
@@ -16,11 +17,13 @@ class RoomService(IRoomService):
     _room_repository: IRoomRepository
     _room_accessibility_option_repository: IRoomAccessibilityOptionRepository
     _accessibility_option_repository: IAccessibilityOptionRepository
+    _reservation_room_service: IReservationRoomService
 
     def __init__(self,
                  room_repository: IRoomRepository,
                  room_accessibility_option_repository: IRoomAccessibilityOptionRepository,
-                 accessibility_option_repository: IAccessibilityOptionRepository
+                 accessibility_option_repository: IAccessibilityOptionRepository,
+                 reservation_room_service: IReservationRoomService,
                  ) -> None:
         """The initializer of the `room service`.
 
@@ -31,6 +34,7 @@ class RoomService(IRoomService):
         self._room_repository = room_repository
         self._room_accessibility_option_repository = room_accessibility_option_repository
         self._accessibility_option_repository = accessibility_option_repository
+        self._reservation_room_service = reservation_room_service
 
     async def get_all(self) -> List[Room]:
         """The method getting all rooms from the repository.
@@ -42,17 +46,6 @@ class RoomService(IRoomService):
         all_rooms = await self._room_repository.get_all_rooms()
 
         return [await self.parse_room(room) for room in all_rooms]
-
-    async def get_all_free_rooms(self) -> List[Room]:
-        """The method getting all free rooms from the repository.
-
-        Returns:
-            Iterable[roomDTO]: All free rooms.
-        """
-
-        free_rooms = await self._room_repository.get_all_free_rooms()
-
-        return [await self.parse_room(room) for room in free_rooms]
 
     async def get_by_id(self, room_id: int) -> Room | None:
         """The method getting room by provided id.

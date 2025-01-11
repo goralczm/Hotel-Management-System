@@ -1,6 +1,6 @@
 """Module containing reservation_room repository implementation."""
 
-from typing import Any, Iterable
+from typing import Any, Iterable, List
 
 from asyncpg import Record  # type: ignore
 from sqlalchemy import select
@@ -44,7 +44,7 @@ class ReservationRoomRepository(IReservationRoomRepository):
 
         return ReservationRoom.from_record(reservation_room) if reservation_room else None
 
-    async def get_by_room_id(self, room_id: int) -> Any | None:
+    async def get_by_room_id(self, room_id: int) -> List[ReservationRoom] | None:
         """The method getting reservation_room by provided room_id.
 
         Args:
@@ -55,13 +55,13 @@ class ReservationRoomRepository(IReservationRoomRepository):
         """
 
         query = (
-            reservation_rooms_table.select()
+            select(reservation_rooms_table)
             .where(reservation_rooms_table.c.room_id == room_id)
         )
 
-        reservation_room = await database.fetch_one(query)
+        reservation_rooms = await database.fetch_all(query)
 
-        return ReservationRoom.from_record(reservation_room) if reservation_room else None
+        return [ReservationRoom.from_record(reservation_room) for reservation_room in reservation_rooms]
 
     async def get_by_reservation_id(self, reservation_id: int) -> Any | None:
         """The method getting reservation_room's by provided reservation id.

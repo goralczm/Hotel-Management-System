@@ -57,11 +57,17 @@ class Container(DeclarativeContainer):
         repository=accessibility_option_repository,
     )
 
+    reservation_room_service = Factory(
+        ReservationRoomService,
+        repository=reservation_room_repository
+    )
+
     room_service = Factory(
         RoomService,
         room_repository=room_repository,
         room_accessibility_option_repository=room_accessibility_option_repository,
-        accessibility_option_repository=accessibility_option_repository
+        accessibility_option_repository=accessibility_option_repository,
+        reservation_room_service=reservation_room_service,
     )
 
     room_accessibility_option_service = Factory(
@@ -83,14 +89,10 @@ class Container(DeclarativeContainer):
     reservation_service = Factory(
         ReservationService,
         reservation_repository=reservation_repository,
-        reservation_room_repository=reservation_room_repository,
+        reservation_room_service=reservation_room_service,
+        guest_service=guest_service,
         room_service=room_service,
         bill_service=bill_service
-    )
-
-    reservation_room_service = Factory(
-        ReservationRoomService,
-        repository=reservation_room_repository
     )
 
     pricing_detail_service = Factory(

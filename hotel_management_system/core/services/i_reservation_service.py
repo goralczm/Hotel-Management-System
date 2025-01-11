@@ -1,9 +1,11 @@
 """Module containing reservation service abstractions."""
 
 from abc import ABC, abstractmethod
+from datetime import date
 from typing import Iterable, List
 
 from hotel_management_system.core.domains.reservation import Reservation, ReservationIn
+from hotel_management_system.core.domains.room import Room
 
 
 class IReservationService(ABC):
@@ -29,7 +31,26 @@ class IReservationService(ABC):
         """
 
     @abstractmethod
-    async def get_by_month(self, month_number: int) -> List[Reservation]:
+    async def get_free_rooms(self, start_date: date, end_date: date) -> List[Room]:
+        """
+
+        :return:
+        """
+
+    @abstractmethod
+    async def get_between_dates(self, start_date: date, end_date: date) -> List[Reservation]:
+        """The method getting reservations made between provided start_date and end_date
+
+        Args:
+            start_date (date): The start date
+            end_date (date): The end date
+
+        Returns:
+            List[Reservation]: The reservations made between the dates
+        """
+
+    @abstractmethod
+    async def get_by_month(self, year: int, month_number: int) -> List[Reservation]:
         """The method getting reservations made in the provided month
 
         Args:
@@ -37,6 +58,17 @@ class IReservationService(ABC):
 
         Returns:
             List[Reservation]: The reservations made in provided month
+        """
+
+    @abstractmethod
+    async def get_by_year(self, year: int) -> List[Reservation]:
+        """The method getting reservations made in the provided year
+
+        Args:
+            month_number (int): The year
+
+        Returns:
+            List[Reservation]: The reservations made in provided year
         """
 
     @abstractmethod

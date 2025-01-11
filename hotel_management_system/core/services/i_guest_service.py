@@ -1,7 +1,7 @@
 """Module containing guest service abstractions."""
 
 from abc import ABC, abstractmethod
-from typing import Iterable
+from typing import Iterable, List
 
 from hotel_management_system.core.domains.guest import Guest, GuestIn
 
@@ -10,7 +10,7 @@ class IGuestService(ABC):
     """A class representing guest repository."""
 
     @abstractmethod
-    async def get_all(self) -> Iterable[Guest]:
+    async def get_all(self) -> List[Guest]:
         """The method getting all guests from the repository.
 
         Returns:
@@ -26,6 +26,30 @@ class IGuestService(ABC):
 
         Returns:
             guestDTO | None: The guest details.
+        """
+
+    @abstractmethod
+    async def get_by_first_name(self, first_name: str) -> List[Guest] | None:
+        """
+
+        :param guest_name:
+        :return:
+        """
+
+    @abstractmethod
+    async def get_by_last_name(self, last_name: str) -> List[Guest] | None:
+        """
+
+        :param guest_name:
+        :return:
+        """
+
+    @abstractmethod
+    async def get_by_needle_in_name(self, needle: str) -> List[Guest] | None:
+        """
+
+        :param guest_name:
+        :return:
         """
 
     @abstractmethod

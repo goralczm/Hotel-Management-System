@@ -27,6 +27,8 @@ from hotel_management_system.core.services.i_room_service import IRoomService
 def get_random_date():
     current_year = datetime.now().year
 
+    current_year += random.randint(-1, 1)
+
     start_date = datetime(current_year, 1, 1)
     end_date = datetime(current_year, 12, 31)
 
@@ -190,26 +192,32 @@ async def main(
         end_date = random_start_date + timedelta(days=days_staying)
         number_of_guests = random.randint(1, 6)
 
-        new_reservation = await reservation_router.create_best_reservation(
-            ReservationIn(
-                guest_id=guest.id,
-                start_date=random_start_date.strftime('%Y-%m-%d'),
-                end_date=end_date.strftime('%Y-%m-%d'),
-                number_of_guests=number_of_guests
-            ),
-            max(1, number_of_guests // 2)
-        )
+        new_reservation = None
+        try:
+            new_reservation = await reservation_router.create_best_reservation(
+                ReservationIn(
+                    guest_id=guest.id,
+                    start_date=random_start_date.strftime('%Y-%m-%d'),
+                    end_date=end_date.strftime('%Y-%m-%d'),
+                    number_of_guests=number_of_guests
+                ),
+                max(1, number_of_guests // 2)
+            )
+        except:
+            print(f"CANNOT CREATE RESERVATION {random_start_date.strftime('%Y-%m-%d')}-{end_date.strftime('%Y-%m-%d')}")
+        else:
+            if new_reservation and len(new_reservation.reserved_rooms) > 0:
+                has_bought_something = random.randint(0, 1) == 0
+                if has_bought_something:
+                    random_pricing = available_pricings[random.randint(0, len(available_pricings) - 1)]
+                    room_who_bought = new_reservation.reserved_rooms[
+                        random.randint(0, len(new_reservation.reserved_rooms) - 1)
+                    ]
 
-        if len(new_reservation.reserved_rooms) > 0:
-            has_bought_something = random.randint(0, 1) == 0
-            if has_bought_something:
-                random_pricing = available_pricings[random.randint(0, len(available_pricings) - 1)]
-                room_who_bought = new_reservation.reserved_rooms[random.randint(0, len(new_reservation.reserved_rooms) - 1)]
-
-                await bill_service.add_bill(
-                    BillIn(
-                        room_id=room_who_bought.id,
-                        pricing_detail_id=random_pricing.id,
-                        reservation_id=new_reservation.id,
+                    await bill_service.add_bill(
+                        BillIn(
+                            room_id=room_who_bought.id,
+                            pricing_detail_id=random_pricing.id,
+                            reservation_id=new_reservation.id,
+                        )
                     )
-                )

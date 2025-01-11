@@ -1,4 +1,3 @@
-"""Module containing airport-related domain models"""
 from asyncpg import Record
 from pydantic import BaseModel, ConfigDict
 

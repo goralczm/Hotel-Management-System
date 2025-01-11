@@ -48,6 +48,56 @@ class GuestRepository(IGuestRepository):
 
         return Guest.from_record(guest) if guest else None
 
+    async def get_by_first_name(self, first_name: str) -> List[Guest] | None:
+        """
+
+        :param guest_name:
+        :return:
+        """
+
+        query = (
+            guests_table.select()
+            .where(guests_table.c.first_name == first_name)
+        )
+
+        guests = await database.fetch_all(query)
+
+        return [Guest.from_record(guest) for guest in guests]
+
+    async def get_by_last_name(self, last_name: str) -> List[Guest] | None:
+        """
+
+        :param guest_name:
+        :return:
+        """
+
+        query = (
+            guests_table.select()
+            .where(guests_table.c.last_name == last_name)
+        )
+
+        guests = await database.fetch_all(query)
+
+        return [Guest.from_record(guest) for guest in guests]
+
+    async def get_by_needle_in_name(self, needle: str) -> List[Guest] | None:
+        """
+
+        :param guest_name:
+        :return:
+        """
+
+        needle = needle.lower()
+
+        query = (
+            guests_table.select()
+            .where(guests_table.c.first_name.contains(needle) or guests_table.c.last_name.contains(needle))
+        )
+
+        guests = await database.fetch_all(query)
+
+        return [Guest.from_record(guest) for guest in guests]
+
     async def add_guest(self, data: GuestIn) -> Guest | None:
         """The method adding new guest to the data storage.
 

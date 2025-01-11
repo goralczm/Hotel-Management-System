@@ -7,3 +7,4 @@ build:
 
 up:
 	@docker compose up
+

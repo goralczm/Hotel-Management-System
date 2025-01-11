@@ -18,13 +18,6 @@ class IRoomRepository(ABC):
         """
 
     @abstractmethod
-    async def get_all_free_rooms(self) -> List[Room]:
-        """
-
-        :return:
-        """
-
-    @abstractmethod
     async def get_by_id(self, room_id: int) -> Room | None:
         """The method getting room by provided id.
 

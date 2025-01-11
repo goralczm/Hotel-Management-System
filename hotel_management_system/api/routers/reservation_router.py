@@ -1,5 +1,5 @@
 """A module containing continent endpoints."""
-
+from datetime import date
 from typing import Iterable, List
 from dependency_injector.wiring import inject, Provide
 from fastapi import APIRouter, Depends, HTTPException
@@ -8,6 +8,7 @@ from hotel_management_system.container import Container
 from hotel_management_system.core.domains.bill import BillIn
 from hotel_management_system.core.domains.reservation import Reservation, ReservationIn
 from hotel_management_system.core.domains.reservation_room import ReservationRoomIn
+from hotel_management_system.core.domains.room import Room
 from hotel_management_system.core.services.i_bill_service import IBillService
 from hotel_management_system.core.services.i_guest_service import IGuestService
 from hotel_management_system.core.services.i_pricing_detail_service import IPricingDetailService
@@ -24,13 +25,13 @@ router = APIRouter()
 async def create_best_reservation(
         reservation: ReservationIn,
         number_of_rooms: int,
-        room_service: IRoomService = Depends(Provide[Container.room_service]),
+        reservation_service: IReservationService = Depends(Provide[Container.reservation_service]),
         guest_service: IGuestService = Depends(Provide[Container.guest_service]),
 ) -> Reservation | dict:
     if not await guest_service.get_by_id(reservation.guest_id):
         raise HTTPException(status_code=404, detail=f"No guest with id: {reservation.guest_id}")
 
-    free_rooms = await room_service.get_all_free_rooms()
+    free_rooms = await reservation_service.get_free_rooms(reservation.start_date, reservation.end_date)
 
     if number_of_rooms > len(free_rooms):
         raise HTTPException(status_code=409, detail="Not sufficient number of free rooms")
@@ -82,9 +83,6 @@ async def create_reservation(
         if not await room_service.get_by_id(id):
             raise HTTPException(status_code=404, detail=f"No room with id: {id}")
 
-        if await reservation_room_service.get_by_room_id(id):
-            raise HTTPException(status_code=409, detail=f"Room with id: {id} is already reserved")
-
     new_reservation = await reservation_service.add_reservation(reservation)
 
     if new_reservation:
@@ -98,16 +96,27 @@ async def create_reservation(
         await reservation_service.delete_reservation(new_reservation.id)
         raise HTTPException(status_code=404, detail="No pricing detail found")
 
-    for id in room_ids:
-        await bill_service.add_bill(BillIn(
-            room_id=id,
-            pricing_detail_id=pricing_detail.id,
-            reservation_id=new_reservation.id
-        ))
+    for day in range(reservation.get_duration()):
+        for id in room_ids:
+            await bill_service.add_bill(BillIn(
+                room_id=id,
+                pricing_detail_id=pricing_detail.id,
+                reservation_id=new_reservation.id
+            ))
 
     new_reservation = await reservation_service.get_by_id(new_reservation.id)
 
     return new_reservation if new_reservation else {}
+
+
+@router.get("/free_rooms", response_model=Iterable[Room], status_code=201)
+@inject
+async def get_all_free_rooms(
+        start_date: date,
+        end_date: date,
+        service: IReservationService = Depends(Provide[Container.reservation_service]),
+) -> Iterable:
+    return await service.get_free_rooms(start_date, end_date)
 
 
 @router.get("/all", response_model=Iterable[Reservation], status_code=200)
@@ -125,6 +134,27 @@ async def get_all_reservations(
     """
 
     reservations = await service.get_all()
+
+    return reservations
+
+
+@router.get("/all/between_months/", response_model=Iterable[Reservation], status_code=200)
+@inject
+async def get_all_reservations_between_months(
+        start_date: date,
+        end_date: date,
+        service: IReservationService = Depends(Provide[Container.reservation_service]),
+) -> Iterable:
+    """An endpoint for getting all reservations.
+
+    Args:
+        service (IReservationService, optional): The injected service dependency.
+
+    Returns:
+        Iterable: The reservation attributes collection.
+    """
+
+    reservations = await service.get_between_dates(start_date, end_date)
 
     return reservations
 

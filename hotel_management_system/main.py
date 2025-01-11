@@ -15,7 +15,7 @@ from hotel_management_system.api.routers.room_router import router as room_route
 from hotel_management_system.api.routers.pricing_detail_router import router as pricing_detail_router
 from hotel_management_system.api.routers.bill_router import router as bill_router
 from hotel_management_system.api.routers.invoice_router import router as invoice_router
-from hotel_management_system.api.routers.summary_router import router as summary_router
+from hotel_management_system.api.routers.raport_router import raport_router as raport_router
 from hotel_management_system.container import Container
 from hotel_management_system.db import database
 from hotel_management_system.db import init_db
@@ -33,7 +33,7 @@ container.wire(modules=[
     "hotel_management_system.api.routers.pricing_detail_router",
     "hotel_management_system.api.routers.bill_router",
     "hotel_management_system.api.routers.invoice_router",
-    "hotel_management_system.api.routers.summary_router",
+    "hotel_management_system.api.routers.raport_router",
     "hotel_management_system.utils.setup",
 ])
 
@@ -59,4 +59,4 @@ app.include_router(reservation_room_router, prefix="/reservation_room")
 app.include_router(pricing_detail_router, prefix="/pricing_detail")
 app.include_router(bill_router, prefix="/bill")
 app.include_router(invoice_router, prefix="/invoice")
-app.include_router(summary_router, prefix="/summary")
+app.include_router(raport_router, prefix="/raport")

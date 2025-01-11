@@ -62,9 +62,8 @@ async def get_all_reservation_rooms(
 
     return reservation_rooms
 
-
 @router.get(
-    "/{room_reservation_id}",
+    "/room_id/{room_id}",
     response_model=ReservationRoom,
     status_code=200,
 )

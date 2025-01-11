@@ -18,7 +18,7 @@ class IReservationRoomRepository(ABC):
         """
 
     @abstractmethod
-    async def get_by_id(self, room_id: int, reservation_id: int) -> ReservationRoom | None:
+    async def get_by_id(self, room_id: int, reservation_id: int) -> List[ReservationRoom] | None:
         """The method getting reservation_room by provided id.
 
         Args:
@@ -30,7 +30,7 @@ class IReservationRoomRepository(ABC):
         """
 
     @abstractmethod
-    async def get_by_room_id(self, room_id: int) -> ReservationRoom | None:
+    async def get_by_room_id(self, room_id: int) -> List[ReservationRoom] | None:
         """The method getting reservation_room by provided room_id.
 
         Args:

@@ -1,5 +1,5 @@
 """Module containing reservation repository implementation."""
-
+from datetime import date
 from typing import Any, Iterable, List
 
 from asyncpg import Record  # type: ignore
@@ -46,7 +46,7 @@ class ReservationRepository(IReservationRepository):
 
         return Reservation.from_record(reservation) if reservation else None
 
-    async def get_by_month(self, month_number: int) -> List[Reservation]:
+    async def get_by_month(self, year: int, month_number: int) -> List[Reservation]:
         """The method getting reservations made in the provided month
 
         Args:
@@ -56,16 +56,36 @@ class ReservationRepository(IReservationRepository):
             List[Reservation]: The reservations made in provided month
         """
 
-        # query = session.query(reservations_table).filter(extract('month', reservations_table.c.start_date) == month)
-
         query = (
             select(reservations_table)
+            .filter(extract('year', reservations_table.c.start_date) == year)
             .filter(extract('month', reservations_table.c.start_date) == month_number)
         )
 
         reservations = await database.fetch_all(query)
 
         return [Reservation.from_record(reservation) for reservation in reservations]
+
+    async def get_between_dates(self, start_date: date, end_date: date) -> List[Reservation]:
+        """The method getting reservations made between provided start_date and end_date
+
+        Args:
+            start_date (date): The start date
+            end_date (date): The end date
+
+        Returns:
+            List[Reservation]: The reservations made between the dates
+        """
+
+        query = (
+            select(reservations_table)
+            .filter(reservations_table.c.start_date.between(start_date, end_date))
+        )
+
+        reservations = await database.fetch_all(query)
+
+        return [Reservation.from_record(reservation) for reservation in reservations]
+
 
     async def add_reservation(self, data: ReservationIn) -> Any | None:
         """The method adding new reservation to the data storage.
