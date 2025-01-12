@@ -1,7 +1,9 @@
-"""Module containing guest_accessibility_option service abstractions."""
+"""
+Module for managing guest_accessibility_option service abstractions.
+"""
 
 from abc import ABC, abstractmethod
-from typing import Iterable
+from typing import List
 
 from hotel_management_system.core.domains.guest_accessibility_option import GuestAccessibilityOption, GuestAccessibilityOptionIn
 
@@ -10,56 +12,61 @@ class IGuestAccessibilityOptionService(ABC):
     """A class representing guest_accessibility_option repository."""
 
     @abstractmethod
-    async def get_all(self) -> Iterable[GuestAccessibilityOption]:
-        """The method getting all guest_accessibility_options from the repository.
+    async def get_all(self) -> List[GuestAccessibilityOption]:
+        """
+        Retrieve all guest accessibility options from the data storage.
 
         Returns:
-            Iterable[guest_accessibility_optionDTO]: All guest_accessibility_options.
+            List[GuestAccessibilityOption]: A collection of all guest accessibility options.
         """
 
     @abstractmethod
     async def get_by_id(self, guest_id: int, accessibility_option_id: int) -> GuestAccessibilityOption | None:
-        """The method getting guest_accessibility_option by provided id.
+        """
+        Retrieve a guest accessibility option by guest ID and accessibility option ID.
 
         Args:
-            guest_id (int): The id of the guest
-            accessibility_option_id (int): The id of the accessibility_option.
+            guest_id (int): The ID of the guest.
+            accessibility_option_id (int): The ID of the accessibility option.
 
         Returns:
-            guest_accessibility_optionDTO | None: The guest_accessibility_option details.
+            GuestAccessibilityOption | None: The details of the guest accessibility option if found
         """
 
     @abstractmethod
-    async def get_by_guest_id(self, guest_id: int) -> Iterable[GuestAccessibilityOption] | None:
-        """The method getting guest_accessibility_option by provided guest_id.
+    async def get_by_guest_id(self, guest_id: int) -> List[GuestAccessibilityOption] | None:
+        """
+        Retrieve all accessibility options associated with a specific guest ID.
 
         Args:
-            guest_id (int): The id of the guest
+            guest_id (int): The ID of the guest.
 
         Returns:
-            ReservationRoom | None: The accessibility_option_guest details.
+            List[GuestAccessibilityOption]: A collection of guest accessibility options if found
         """
 
     @abstractmethod
-    async def get_by_accessibility_option_id(self, accessibility_option_id: int) -> Iterable[GuestAccessibilityOption] | None:
-        """The method getting guest_accessibility_option's by provided accessibility_option id.
+    async def get_by_accessibility_option_id(self, accessibility_option_id: int) -> List[GuestAccessibilityOption] | None:
+        """
+        Retrieve all guest accessibility options associated with a specific accessibility option ID.
 
         Args:
-            accessibility_option_id (int): The id of the accessibility_option
+            accessibility_option_id (int): The ID of the accessibility option.
 
         Returns:
-            ReservationRoom | None: The accessibility_option_guest details.
+            List[GuestAccessibilityOption]: A collection of guest accessibility options if found
         """
 
     @abstractmethod
     async def add_guest_accessibility_option(self, data: GuestAccessibilityOptionIn) -> GuestAccessibilityOption | None:
-        """The method adding new guest_accessibility_option to the data storage.
+        """
+        Add a new guest accessibility option to the data storage.
 
         Args:
-            data (guest_accessibility_optionIn): The details of the new guest_accessibility_option.
+            data (GuestAccessibilityOptionIn): The details of the new guest accessibility option.
 
         Returns:
-            guest_accessibility_option | None: Full details of the newly added guest_accessibility_option.
+            GuestAccessibilityOption | None: The newly added guest accessibility option, or None if the operation fails.
         """
 
     @abstractmethod
@@ -69,25 +76,27 @@ class IGuestAccessibilityOptionService(ABC):
             accessibility_option_id: int,
             data: GuestAccessibilityOptionIn,
     ) -> GuestAccessibilityOption | None:
-        """The abstract updating guest_accessibility_option data in the data storage.
+        """
+        Update an existing guest accessibility option in the data storage.
 
         Args:
-            guest_id (int): The id of the guest.
-            accessibility_option_id (int): The id of the accessibility_option.
-            data (GuestIn): The details of the updated guest_accessibility_option.
+            guest_id (int): The ID of the guest.
+            accessibility_option_id (int): The ID of the accessibility option.
+            data (GuestAccessibilityOptionIn): The updated data for the guest accessibility option.
 
         Returns:
-            Any | None: The updated guest_accessibility_option details.
+            GuestAccessibilityOption | None: The updated guest accessibility option, or None if not found.
         """
 
     @abstractmethod
     async def delete_guest_accessibility_option(self, guest_id: int, accessibility_option_id: int) -> bool:
-        """The abstract updating removing guest_accessibility_option from the data storage.
+        """
+        Remove a guest accessibility option from the data storage.
 
         Args:
-            guest_id (int): The id of the guest
-            accessibility_option_id (int): The id of the accessibility_option.
+            guest_id (int): The ID of the guest.
+            accessibility_option_id (int): The ID of the accessibility option.
 
         Returns:
-            bool: Success of the operation.
+            bool: True if the operation is successful, False otherwise.
         """

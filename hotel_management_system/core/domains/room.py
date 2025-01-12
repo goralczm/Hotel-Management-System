@@ -19,7 +19,7 @@ class Room(RoomIn):
 
     model_config = ConfigDict(
         from_attributes=True,
-        extra="ignore"
+        extra="ignore",
     )
 
     @classmethod
@@ -30,16 +30,24 @@ class Room(RoomIn):
             record (Record): The DB record.
 
         Returns:
-            GuestDTO: The final DTO instance.
+            Room: The final DTO instance.
         """
         record_dict = dict(record)
 
         return cls(
-            id=record_dict.get("id"),  # type: ignore
-            alias=record_dict.get("alias")
+            id=record_dict.get("id"),
+            alias=record_dict.get("alias"),
         )
 
     def correlation_coefficient(self, accessibility_options: List[AccessibilityOption]) -> int:
+        """Calculates a coefficient based on matched accessibility options.
+
+        Args:
+            accessibility_options (List[AccessibilityOption]): List of options to compare.
+
+        Returns:
+            int: The number of matched accessibility options.
+        """
         coefficient = 0
         for accessibility_option in self.accessibility_options:
             if accessibility_option in accessibility_options:

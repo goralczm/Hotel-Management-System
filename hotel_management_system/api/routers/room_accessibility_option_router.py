@@ -1,4 +1,6 @@
-"""A module containing continent endpoints."""
+"""
+A module containing room_accessibility_option endpoints.
+"""
 
 from typing import Iterable
 from dependency_injector.wiring import inject, Provide
@@ -21,23 +23,26 @@ async def create_room_accessibility_option(
         accessibility_option_service: IAccessibilityOptionService = Depends(Provide[Container.accessibility_option_service]),
         room_accessibility_option_service: IRoomAccessibilityOptionService = Depends(Provide[Container.room_accessibility_option_service]),
 ) -> dict:
-    """An endpoint for adding new room_accessibility_option.
+    """
+    Create a new room accessibility option by associating a room with an accessibility option.
 
     Args:
-        room_accessibility_option (RoomAccessibilityOptionIn): The room_accessibility_option data.
-        room_service (IRoomService, optional): The injected room service dependency
-        accessibility_option_service (IAccessibilityOptionService, optional): The injected accessibility option service dependency
-        room_accessibility_option_service (IRoomAccessibilityOptionService, optional): The injected service dependency.
+        room_accessibility_option (RoomAccessibilityOptionIn): The room accessibility option data.
+        room_service (IRoomService): The room service dependency.
+        accessibility_option_service (IAccessibilityOptionService): The accessibility option service dependency.
+        room_accessibility_option_service (IRoomAccessibilityOptionService): The room accessibility option service dependency.
 
     Returns:
-        dict: The new room_accessibility_option attributes.
-    """
+        dict: The newly created room accessibility option details.
 
+    Raises:
+        HTTPException: If the room or accessibility option doesn't exist.
+    """
     if not await room_service.get_by_id(room_accessibility_option.room_id):
-        raise HTTPException(status_code=404, detail="Room id not found")
+        raise HTTPException(status_code=404, detail="Room not found")
 
     if not await accessibility_option_service.get_by_id(room_accessibility_option.accessibility_option_id):
-        raise HTTPException(status_code=404, detail="Accessibility option id not found")
+        raise HTTPException(status_code=404, detail="Accessibility option not found")
 
     new_room_accessibility_option = await room_accessibility_option_service.add_room_accessibility_option(room_accessibility_option)
 
@@ -49,49 +54,50 @@ async def create_room_accessibility_option(
 async def get_all_room_accessibility_options(
         service: IRoomAccessibilityOptionService = Depends(Provide[Container.room_accessibility_option_service]),
 ) -> Iterable:
-    """An endpoint for getting all room_accessibility_options.
+    """
+    Retrieve all room accessibility options.
 
     Args:
-        service (IRoomAccessibilityOptionService, optional): The injected service dependency.
+        service (IRoomAccessibilityOptionService): The room accessibility option service dependency.
 
     Returns:
-        Iterable: The room_accessibility_option attributes collection.
+        Iterable: A collection of room accessibility options.
     """
-
     room_accessibility_options = await service.get_all()
 
     return room_accessibility_options
 
 
-@router.get(
-    "/{room_accessibility_option_id}",
-    response_model=RoomAccessibilityOption,
-    status_code=200,
-)
+@router.get("/{room_accessibility_option_id}", response_model=RoomAccessibilityOption, status_code=200)
 @inject
 async def get_room_accessibility_option_by_id(
         room_id: int,
         accessibility_option_id: int,
         service: IRoomAccessibilityOptionService = Depends(Provide[Container.room_accessibility_option_service]),
 ) -> dict | None:
-    """An endpoint for getting room_accessibility_option by id.
+    """
+    Retrieve a room accessibility option by its room and accessibility option IDs.
 
     Args:
-        room_id (int): The id of the room
-        accessibility_option_id (int): The id of the accessibility_option.
-        service (IRoomAccessibilityOptionService, optional): The injected service dependency.
+        room_id (int): The ID of the room.
+        accessibility_option_id (int): The ID of the accessibility option.
+        service (IRoomAccessibilityOptionService): The room accessibility option service dependency.
 
     Returns:
-        dict | None: The room_accessibility_option details.
-    """
+        dict | None: The room accessibility option details, or None if not found.
 
-    if room_accessibility_option := await service.get_by_id(room_id, accessibility_option_id):
+    Raises:
+        HTTPException: If the room accessibility option doesn't exist.
+    """
+    room_accessibility_option = await service.get_by_id(room_id, accessibility_option_id)
+
+    if room_accessibility_option:
         return room_accessibility_option.model_dump()
 
     raise HTTPException(status_code=404, detail="RoomAccessibilityOption not found")
 
 
-@router.put("/{room_accessibility_option_id}", response_model=RoomAccessibilityOption, status_code=201)
+@router.put("/{room_accessibility_option_id}", response_model=RoomAccessibilityOption, status_code=200)
 @inject
 async def update_room_accessibility_option(
         room_id: int,
@@ -99,28 +105,28 @@ async def update_room_accessibility_option(
         updated_room_accessibility_option: RoomAccessibilityOptionIn,
         service: IRoomAccessibilityOptionService = Depends(Provide[Container.room_accessibility_option_service]),
 ) -> dict:
-    """An endpoint for updating room_accessibility_option data.
+    """
+    Update a room accessibility option.
 
     Args:
-        room_id (int): The id of the room
-        accessibility_option_id (int): The id of the accessibility_option.
-        updated_room_accessibility_option (RoomAccessibilityOptionIn): The updated room_accessibility_option details.
-        service (IRoomAccessibilityOptionService, optional): The injected service dependency.
-
-    Raises:
-        HTTPException: 404 if room_accessibility_option does not exist.
+        room_id (int): The ID of the room.
+        accessibility_option_id (int): The ID of the accessibility option.
+        updated_room_accessibility_option (RoomAccessibilityOptionIn): The updated room accessibility option data.
+        service (IRoomAccessibilityOptionService): The room accessibility option service dependency.
 
     Returns:
-        dict: The updated room_accessibility_option details.
-    """
+        dict: The updated room accessibility option details.
 
-    if await service.get_by_id(room_id=room_id, accessibility_option_id=accessibility_option_id):
+    Raises:
+        HTTPException: If the room accessibility option doesn't exist.
+    """
+    if await service.get_by_id(room_id, accessibility_option_id):
         await service.update_room_accessibility_option(
             room_id=room_id,
             accessibility_option_id=accessibility_option_id,
             data=updated_room_accessibility_option,
         )
-        return {**updated_room_accessibility_option.model_dump()}
+        return updated_room_accessibility_option.model_dump()
 
     raise HTTPException(status_code=404, detail="RoomAccessibilityOption not found")
 
@@ -132,20 +138,19 @@ async def delete_room_accessibility_option(
         accessibility_option_id: int,
         service: IRoomAccessibilityOptionService = Depends(Provide[Container.room_accessibility_option_service]),
 ) -> None:
-    """An endpoint for deleting room_accessibility_options.
+    """
+    Delete a room accessibility option by its room and accessibility option IDs.
 
     Args:
-        room_id (int): The id of the room
-        accessibility_option_id (int): The id of the accessibility_option.
-        service (IcontinentService, optional): The injected service dependency.
+        room_id (int): The ID of the room.
+        accessibility_option_id (int): The ID of the accessibility option.
+        service (IRoomAccessibilityOptionService): The room accessibility option service dependency.
 
     Raises:
-        HTTPException: 404 if room_accessibility_option does not exist.
+        HTTPException: If the room accessibility option doesn't exist.
     """
-
-    if await service.get_by_id(room_id=room_id, accessibility_option_id=accessibility_option_id):
+    if await service.get_by_id(room_id, accessibility_option_id):
         await service.delete_room_accessibility_option(room_id, accessibility_option_id)
-
         return
 
     raise HTTPException(status_code=404, detail="RoomAccessibilityOption not found")

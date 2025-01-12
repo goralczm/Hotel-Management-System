@@ -1,47 +1,36 @@
-"""Module containing airport-related domain models"""
-
-from typing import Optional
-
 from asyncpg import Record
 from pydantic import BaseModel, ConfigDict
 
 
 class PricingDetailIn(BaseModel):
-    """Model representing pricing_detail's DTO attributes."""
+    """Model representing the input DTO for creating or updating pricing details."""
     name: str
     price: float
 
-    @classmethod
-    def from_dict(cls, data: dict) -> "PricingDetailIn":
-        return cls(
-            name=data.get("name"),
-            price=data.get("price"),
-        )
-
 
 class PricingDetail(PricingDetailIn):
-    """Model representing pricing_detail's attributes in the database."""
+    """Model representing pricing details' attributes in the database."""
     id: int
 
     model_config = ConfigDict(
         from_attributes=True,
-        extra="ignore"
+        extra="ignore",
     )
 
     @classmethod
     def from_record(cls, record: Record) -> "PricingDetail":
-        """A method for preparing DTO instance based on DB record.
+        """Convert a database record into a PricingDetail instance.
 
         Args:
             record (Record): The DB record.
 
         Returns:
-            PricingDetailDTO: The final DTO instance.
+            PricingDetail: The DTO instance populated with the data from the DB record.
         """
         record_dict = dict(record)
 
         return cls(
-            id=record_dict.get("id"),  # type: ignore
+            id=record_dict.get("id"),
             name=record_dict.get("name"),
             price=record_dict.get("price"),
         )

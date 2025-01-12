@@ -1,4 +1,4 @@
-"""A module containing continent endpoints."""
+"""A module containing guest management endpoints."""
 
 from typing import Iterable, List
 from dependency_injector.wiring import inject, Provide
@@ -18,18 +18,20 @@ async def create_guest(
         guest: GuestIn,
         guest_service: IGuestService = Depends(Provide[Container.guest_service])
 ) -> dict:
-    """An endpoint for adding new guest.
+    """
+    Create a new guest.
 
     Args:
-        guest (GuestIn): The guest data.
-        guest_service (IGuestService, optional): The injected service dependency.
+        guest (GuestIn): The guest data to be added.
+        guest_service (IGuestService, optional): The service for managing guest data.
 
     Returns:
-        dict: The new guest attributes.
+        dict: The details of the newly created guest.
+
+    Raises:
+        HTTPException: 400 if the guest creation fails.
     """
-
     new_guest = await guest_service.add_guest(guest)
-
     return new_guest.model_dump() if new_guest else {}
 
 
@@ -38,17 +40,16 @@ async def create_guest(
 async def get_all_guests(
         guest_service: IGuestService = Depends(Provide[Container.guest_service]),
 ) -> Iterable:
-    """An endpoint for getting all guests.
+    """
+    Retrieve all guests.
 
     Args:
-        guest_service (IGuestService, optional): The injected service dependency.
+        guest_service (IGuestService, optional): The service for fetching all guest data.
 
     Returns:
-        Iterable: The guest attributes collection.
+        Iterable: A collection of all guests.
     """
-
     guests = await guest_service.get_all()
-
     return guests
 
 
@@ -58,16 +59,19 @@ async def get_guest_by_id(
         guest_id: int,
         guest_service: IGuestService = Depends(Provide[Container.guest_service]),
 ) -> dict | None:
-    """An endpoint for getting guest by id.
+    """
+    Retrieve a guest by their ID.
 
     Args:
-        guest_id (int): The id of the guest.
-        guest_service (IGuestService, optional): The injected service dependency.
+        guest_id (int): The ID of the guest to retrieve.
+        guest_service (IGuestService, optional): The service for fetching guest data.
 
     Returns:
-        dict | None: The guest details.
-    """
+        dict | None: The guest details if found, or None if not found.
 
+    Raises:
+        HTTPException: 404 if the guest does not exist.
+    """
     if guest := await guest_service.get_by_id(guest_id):
         return guest.model_dump()
 
@@ -80,18 +84,18 @@ async def get_guest_by_first_name(
         first_name: str,
         guest_service: IGuestService = Depends(Provide[Container.guest_service]),
 ) -> dict | None:
-    """An endpoint for getting guest by id.
+    """
+    Retrieve guests by their first name.
 
     Args:
-        guest_id (int): The id of the guest.
-        guest_service (IGuestService, optional): The injected service dependency.
+        first_name (str): The first name to search for.
+        guest_service (IGuestService, optional): The service for fetching guest data.
 
     Returns:
-        dict | None: The guest details.
+        List[Guest]: A list of guests with the matching first name.
     """
-
-    if guest := await guest_service.get_by_first_name(first_name):
-        return guest
+    if guests := await guest_service.get_by_first_name(first_name):
+        return guests
 
 
 @router.get("/last_name/{last_name}", response_model=List[Guest], status_code=200)
@@ -100,18 +104,18 @@ async def get_guest_by_last_name(
         last_name: str,
         guest_service: IGuestService = Depends(Provide[Container.guest_service]),
 ) -> dict | None:
-    """An endpoint for getting guest by id.
+    """
+    Retrieve guests by their last name.
 
     Args:
-        guest_id (int): The id of the guest.
-        guest_service (IGuestService, optional): The injected service dependency.
+        last_name (str): The last name to search for.
+        guest_service (IGuestService, optional): The service for fetching guest data.
 
     Returns:
-        dict | None: The guest details.
+        List[Guest]: A list of guests with the matching last name.
     """
-
-    if guest := await guest_service.get_by_last_name(last_name):
-        return guest
+    if guests := await guest_service.get_by_last_name(last_name):
+        return guests
 
 
 @router.get("/needle/{needle}", response_model=List[Guest], status_code=200)
@@ -120,18 +124,18 @@ async def get_by_needle_in_name(
         needle: str,
         guest_service: IGuestService = Depends(Provide[Container.guest_service]),
 ) -> dict | None:
-    """An endpoint for getting guest by id.
+    """
+    Retrieve guests by a needle (substring) in their first or last name.
 
     Args:
-        guest_id (int): The id of the guest.
-        guest_service (IGuestService, optional): The injected service dependency.
+        needle (str): The substring to search for in names.
+        guest_service (IGuestService, optional): The service for fetching guest data.
 
     Returns:
-        dict | None: The guest details.
+        List[Guest]: A list of guests whose first or last name contains the given needle.
     """
-
-    if guest := await guest_service.get_by_needle_in_name(needle):
-        return guest
+    if guests := await guest_service.get_by_needle_in_name(needle):
+        return guests
 
 
 @router.put("/{guest_id}", response_model=Guest, status_code=201)
@@ -141,20 +145,20 @@ async def update_guest(
         updated_guest: GuestIn,
         guest_service: IGuestService = Depends(Provide[Container.guest_service]),
 ) -> dict:
-    """An endpoint for updating guest data.
+    """
+    Update guest data.
 
     Args:
-        guest_id (int): The id of the guest.
+        guest_id (int): The ID of the guest to update.
         updated_guest (GuestIn): The updated guest details.
-        guest_service (IGuestService, optional): The injected service dependency.
+        guest_service (IGuestService, optional): The service for updating guest data.
 
     Raises:
-        HTTPException: 404 if guest does not exist.
+        HTTPException: 404 if the guest does not exist.
 
     Returns:
         dict: The updated guest details.
     """
-
     if await guest_service.get_by_id(guest_id=guest_id):
         await guest_service.update_guest(
             guest_id=guest_id,
@@ -173,16 +177,17 @@ async def delete_guest(
         guest_accessibility_option_service: IGuestAccessibilityOptionService = Depends(
             Provide[Container.guest_accessibility_option_service]),
 ) -> None:
-    """An endpoint for deleting guests.
+    """
+    Delete a guest along with their accessibility options.
 
     Args:
-        guest_id (int): The id of the guest.
-        guest_service (IGuestService, optional): The injected service dependency.
+        guest_id (int): The ID of the guest to delete.
+        guest_service (IGuestService, optional): The service for managing guest data.
+        guest_accessibility_option_service (IGuestAccessibilityOptionService, optional): The service for managing guest accessibility options.
 
     Raises:
-        HTTPException: 404 if guest does not exist.
+        HTTPException: 404 if the guest does not exist.
     """
-
     if not await guest_service.get_by_id(guest_id=guest_id):
         raise HTTPException(status_code=404, detail="Guest not found")
 

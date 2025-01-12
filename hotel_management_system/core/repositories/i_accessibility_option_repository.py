@@ -3,7 +3,7 @@ Module for managing accessibility_option repository abstractions.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Iterable
+from typing import List
 from hotel_management_system.core.domains.accessibility_option import AccessibilityOptionIn, AccessibilityOption
 
 
@@ -13,12 +13,12 @@ class IAccessibilityOptionRepository(ABC):
     """
 
     @abstractmethod
-    async def get_all_accessibility_options(self) -> Iterable[AccessibilityOption]:
+    async def get_all_accessibility_options(self) -> List[AccessibilityOption]:
         """
         Retrieve all accessibility options from the data storage.
 
         Returns:
-            Iterable[AccessibilityOption]: A collection of all accessibility options.
+            List[AccessibilityOption]: A collection of all accessibility options.
         """
 
     @abstractmethod
@@ -31,6 +31,30 @@ class IAccessibilityOptionRepository(ABC):
 
         Returns:
             AccessibilityOption | None: The newly added accessibility option, or None if the operation fails.
+        """
+
+    @abstractmethod
+    async def get_by_id(self, accessibility_option_id: int) -> AccessibilityOption | None:
+        """
+        Retrieve an accessibility option by its ID.
+
+        Args:
+            accessibility_option_id (int): The ID of the accessibility option.
+
+        Returns:
+            AccessibilityOption | None: The accessibility option details, or None if not found.
+        """
+
+    @abstractmethod
+    async def get_by_name(self, accessibility_option_name: str) -> AccessibilityOption | None:
+        """
+        Retrieve an accessibility option by its name.
+
+        Args:
+            accessibility_option_name (str): The name of the accessibility option.
+
+        Returns:
+            AccessibilityOption | None: The accessibility option details, or None if not found.
         """
 
     @abstractmethod
@@ -60,28 +84,4 @@ class IAccessibilityOptionRepository(ABC):
 
         Returns:
             bool: True if the operation is successful, False otherwise.
-        """
-
-    @abstractmethod
-    async def get_by_id(self, accessibility_option_id: int) -> AccessibilityOption | None:
-        """
-        Retrieve an accessibility option by its ID.
-
-        Args:
-            accessibility_option_id (int): The ID of the accessibility option.
-
-        Returns:
-            AccessibilityOption | None: The accessibility option details, or None if not found.
-        """
-
-    @abstractmethod
-    async def get_by_name(self, accessibility_option_name: str) -> AccessibilityOption | None:
-        """
-        Retrieve an accessibility option by its name.
-
-        Args:
-            accessibility_option_name (str): The name of the accessibility option.
-
-        Returns:
-            AccessibilityOption | None: The accessibility option details, or None if not found.
         """

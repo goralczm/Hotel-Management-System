@@ -1,61 +1,61 @@
-"""Module containing accessibility_option service abstractions."""
+"""
+Module for managing accessibility_option service abstractions.
+"""
 
 from abc import ABC, abstractmethod
-from typing import Iterable
+from typing import List
 
 from hotel_management_system.core.domains.accessibility_option import AccessibilityOption, AccessibilityOptionIn
 
 
 class IAccessibilityOptionService(ABC):
-    """A class representing accessibility_option repository."""
+    """
+    Abstract base class defining the interface for an accessibility option service.
+    """
 
     @abstractmethod
-    async def get_all(self) -> Iterable[AccessibilityOption]:
-        """The method getting all accessibility_options from the repository.
-
-        Returns:
-            Iterable[accessibility_optionDTO]: All accessibility_options.
+    async def get_all(self) -> List[AccessibilityOption]:
         """
-
-    @abstractmethod
-    async def get_by_id(self, accessibility_option_id: int) -> AccessibilityOption | None:
-        """The method getting accessibility_option by provided id.
-
-        Args:
-            accessibility_option_id (int): The id of the accessibility_option.
+        Retrieve all accessibility options from the data storage.
 
         Returns:
-            accessibility_optionDTO | None: The accessibility_option details.
-        """
-
-    @abstractmethod
-    async def get_by_name(self, accessibility_option_name: str) -> AccessibilityOption | None:
-        """The method getting accessibility_option by provided name.
-
-        Args:
-            accessibility_option_name (str): The name of the accessibility_option.
-
-        Returns:
-            accessibility_optionDTO | None: The accessibility_option details.
+            List[AccessibilityOption]: A collection of all accessibility options.
         """
 
     @abstractmethod
     async def add_accessibility_option(self, data: AccessibilityOptionIn) -> AccessibilityOption | None:
-        """The method adding new accessibility_option to the data storage.
+        """
+        Add a new accessibility option to the data storage.
 
         Args:
-            data (accessibility_optionIn): The details of the new accessibility_option.
+            data (AccessibilityOptionIn): The data for the new accessibility option.
 
         Returns:
-            accessibility_option | None: Full details of the newly added accessibility_option.
+            AccessibilityOption | None: The newly added accessibility option, or None if the operation fails.
         """
 
     @abstractmethod
-    async def setup_accessibility_options(self) -> None:
-        """The method initiating accessibility_option data in the data storage.
+    async def get_by_id(self, accessibility_option_id: int) -> AccessibilityOption | None:
+        """
+        Retrieve an accessibility option by its ID.
+
+        Args:
+            accessibility_option_id (int): The ID of the accessibility option.
 
         Returns:
-            None
+            AccessibilityOption | None: The accessibility option details, or None if not found.
+        """
+
+    @abstractmethod
+    async def get_by_name(self, accessibility_option_name: str) -> AccessibilityOption | None:
+        """
+        Retrieve an accessibility option by its name.
+
+        Args:
+            accessibility_option_name (str): The name of the accessibility option.
+
+        Returns:
+            AccessibilityOption | None: The accessibility option details, or None if not found.
         """
 
     @abstractmethod
@@ -64,23 +64,25 @@ class IAccessibilityOptionService(ABC):
             accessibility_option_id: int,
             data: AccessibilityOptionIn,
     ) -> AccessibilityOption | None:
-        """The method updating accessibility_option data in the data storage.
+        """
+        Update an existing accessibility option in the data storage.
 
         Args:
-            accessibility_option_id (int): The id of the accessibility_option.
-            data (accessibility_optionIn): The details of the updated accessibility_option.
+            accessibility_option_id (int): The ID of the accessibility option to update.
+            data (AccessibilityOptionIn): The updated data for the accessibility option.
 
         Returns:
-            accessibility_option | None: The updated accessibility_option details.
+            AccessibilityOption | None: The updated accessibility option, or None if not found.
         """
 
     @abstractmethod
     async def delete_accessibility_option(self, accessibility_option_id: int) -> bool:
-        """The method updating removing accessibility_option from the data storage.
+        """
+        Remove an accessibility option from the data storage.
 
         Args:
-            accessibility_option_id (int): The id of the accessibility_option.
+            accessibility_option_id (int): The ID of the accessibility option to delete.
 
         Returns:
-            bool: Success of the operation.
+            bool: True if the operation is successful, False otherwise.
         """

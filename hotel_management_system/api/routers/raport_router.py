@@ -1,4 +1,6 @@
-from typing import Iterable, List
+"""A module containing report generation endpoints."""
+
+from typing import List
 from datetime import date, datetime
 
 from dependency_injector.wiring import inject, Provide
@@ -16,6 +18,16 @@ async def generate_raport(
         reservations: List[Reservation],
         room_service: IRoomService = Depends(Provide(Container.room_service)),
 ) -> dict:
+    """
+    Generate a report based on the given reservations.
+
+    Args:
+        reservations (List[Reservation]): A list of reservations.
+        room_service (IRoomService, optional): The service for retrieving room data.
+
+    Returns:
+        dict: A dictionary containing the report details.
+    """
     all_rooms = await room_service.get_all()
 
     return {
@@ -34,6 +46,16 @@ async def date_raport(
         date: date,
         reservation_service: IReservationService = Depends(Provide[Container.reservation_service]),
 ) -> dict:
+    """
+    Generate a report for a specific date.
+
+    Args:
+        date (date): The date for which to generate the report.
+        reservation_service (IReservationService, optional): The service for retrieving reservations.
+
+    Returns:
+        dict: A dictionary containing the report for the specified date.
+    """
     reservations = await reservation_service.get_between_dates(date, date)
 
     return await generate_raport(reservations)
@@ -46,6 +68,17 @@ async def between_dates_raport(
         end_date: date,
         reservation_service: IReservationService = Depends(Provide[Container.reservation_service]),
 ) -> dict:
+    """
+    Generate a report for a range of dates.
+
+    Args:
+        start_date (date): The start date for the report.
+        end_date (date): The end date for the report.
+        reservation_service (IReservationService, optional): The service for retrieving reservations.
+
+    Returns:
+        dict: A dictionary containing the report for the specified date range.
+    """
     reservations = await reservation_service.get_between_dates(start_date, end_date)
 
     return await generate_raport(reservations)
@@ -56,6 +89,15 @@ async def between_dates_raport(
 async def todays_raport(
         reservation_service: IReservationService = Depends(Provide[Container.reservation_service]),
 ) -> dict:
+    """
+    Generate a report for today.
+
+    Args:
+        reservation_service (IReservationService, optional): The service for retrieving reservations.
+
+    Returns:
+        dict: A dictionary containing the report for today.
+    """
     today = datetime.today()
     reservations = await reservation_service.get_between_dates(today, today)
 
@@ -66,20 +108,64 @@ async def todays_raport(
 @inject
 async def yearly_raport(
         year: int,
+) -> dict:
+    """
+    Generate a report for a specific year.
+
+    Args:
+        year (int): The year for which to generate the report.
+
+    Returns:
+        dict: A dictionary containing the report for the specified year.
+    """
+
+    summaries = {}
+
+    for i in range(1, 13):
+        summaries[i] = await monthly_raport(year, i)
+
+    return summaries
+
+
+@raport_router.get("/year/{year}/summary", response_model=dict, status_code=201)
+@inject
+async def yearly_raport(
+        year: int,
         reservation_service: IReservationService = Depends(Provide[Container.reservation_service]),
 ) -> dict:
-    reservations_this_month = await reservation_service.get_by_year(year)
+    """
+    Generate a report for a specific year.
 
-    return await generate_raport(reservations_this_month)
+    Args:
+        year (int): The year for which to generate the report.
+        reservation_service (IReservationService, optional): The service for retrieving reservations.
+
+    Returns:
+        dict: A dictionary containing the report for the specified year.
+    """
+    reservations_this_year = await reservation_service.get_by_year(year)
+
+    return await generate_raport(reservations_this_year)
 
 
 @raport_router.get("/year/{year}/month/{month_number}", response_model=dict, status_code=201)
 @inject
-async def montly_raport(
+async def monthly_raport(
         year: int,
         month_number: int,
         reservation_service: IReservationService = Depends(Provide[Container.reservation_service]),
 ) -> dict:
+    """
+    Generate a report for a specific month in a given year.
+
+    Args:
+        year (int): The year for which to generate the report.
+        month_number (int): The month number (1-12) for which to generate the report.
+        reservation_service (IReservationService, optional): The service for retrieving reservations.
+
+    Returns:
+        dict: A dictionary containing the report for the specified year and month.
+    """
     reservations_this_month = await reservation_service.get_by_month(year, month_number)
 
     return await generate_raport(reservations_this_month)

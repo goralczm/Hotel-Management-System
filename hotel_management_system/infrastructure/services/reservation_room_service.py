@@ -1,4 +1,6 @@
-"""Module containing continent service implementation."""
+"""
+Module containing reservation_room service implementation.
+"""
 
 from typing import Iterable, List
 
@@ -8,73 +10,80 @@ from hotel_management_system.core.services.i_reservation_room_service import IRe
 
 
 class ReservationRoomService(IReservationRoomService):
-    """A class implementing the reservation_room service."""
+    """
+    A class implementing the reservation_room service.
+    """
 
     _repository: IReservationRoomRepository
 
     def __init__(self, repository: IReservationRoomRepository) -> None:
-        """The initializer of the `reservation_room service`.
+        """
+        The initializer of the `reservation_room service`.
 
         Args:
-            repository (Ireservation_roomRepository): The reference to the repository.
+            repository (IReservationRoomRepository): The reference to the repository.
         """
 
         self._repository = repository
 
     async def get_all(self) -> Iterable[ReservationRoom]:
-        """The method getting all reservation_rooms from the repository.
+        """
+        Retrieve all reservation rooms from the data storage.
 
         Returns:
-            Iterable[reservation_roomDTO]: All reservation_rooms.
+            List[ReservationRoom]: A list of all reservation rooms.
         """
 
         return await self._repository.get_all_reservation_rooms()
 
     async def get_by_id(self, room_id: int, reservation_id: int) -> List[ReservationRoom] | None:
-        """The method getting reservation_room by provided id.
+        """
+        Retrieve a reservation room by its unique room ID and reservation ID.
 
         Args:
-            room_id (int): The id of the room
-            reservation_id (int): The id of the accessibility_option.
+            room_id (int): The ID of the room.
+            reservation_id (int): The ID of the reservation.
 
         Returns:
-            reservation_roomDTO | None: The reservation_room details.
+            List[ReservationRoom] | None: The reservation room details if found, or None if not found.
         """
 
         return await self._repository.get_by_id(room_id, reservation_id)
 
-    async def get_by_reservation_id(self, reservation_id: int) -> List[ReservationRoom] | None:
-        """The method getting reservation_room's by provided reservation id.
+    async def get_by_reservation_id(self, reservation_id: int) -> List[ReservationRoom]:
+        """
+        Retrieve a reservation room by its reservation ID.
 
         Args:
-            reservation_id (int): The id of the reservation
+            reservation_id (int): The ID of the reservation.
 
         Returns:
-            ReservationRoom | None: The reservation_room details.
+            ReservationRoom | None: The reservation room details if found
         """
 
         return await self._repository.get_by_reservation_id(reservation_id)
 
     async def get_by_room_id(self, room_id: int) -> ReservationRoom | None:
-        """The method getting reservation_room by provided room_id.
+        """
+        Retrieve reservation rooms for a specific room ID.
 
         Args:
-            room_id (int): The id of the room
+            room_id (int): The ID of the room.
 
         Returns:
-            ReservationRoom | None: The reservation_room details.
+            List[ReservationRoom] | None: The reservation rooms for the specified room, or None if no rooms are found.
         """
-
         return await self._repository.get_by_room_id(room_id)
 
     async def add_reservation_room(self, data: ReservationRoomIn) -> ReservationRoom | None:
-        """The method adding new reservation_room to the data storage.
+        """
+        Add a new reservation room to the data storage.
 
         Args:
-            data (reservation_roomIn): The details of the new reservation_room.
+            data (ReservationRoomIn): The details of the new reservation room.
 
         Returns:
-            reservation_room | None: Full details of the newly added reservation_room.
+            ReservationRoom | None: The newly added reservation room, or None if the operation fails.
         """
 
         return await self._repository.add_reservation_room(data)
@@ -85,15 +94,16 @@ class ReservationRoomService(IReservationRoomService):
             reservation_id: int,
             data: ReservationRoomIn,
     ) -> ReservationRoom | None:
-        """The abstract updating reservation_room data in the data storage.
+        """
+        Update the details of an existing reservation room in the data storage.
 
         Args:
-            room_id (int): The id of the room.
-            reservation_id (int): The id of the accessibility_option.
-            data (GuestIn): The details of the updated reservation_room.
+            room_id (int): The ID of the room.
+            reservation_id (int): The ID of the reservation.
+            data (ReservationRoomIn): The updated details for the reservation room.
 
         Returns:
-            Any | None: The updated reservation_room details.
+            ReservationRoom | None: The updated reservation room details, or None if the reservation room is not found.
         """
 
         return await self._repository.update_reservation_room(
@@ -103,14 +113,15 @@ class ReservationRoomService(IReservationRoomService):
         )
 
     async def delete_reservation_room(self, room_id: int, reservation_id: int) -> bool:
-        """The abstract updating removing reservation_room from the data storage.
+        """
+        Remove a reservation room from the data storage.
 
         Args:
-            room_id (int): The id of the room
-            reservation_id (int): The id of the accessibility_option.
+            room_id (int): The ID of the room.
+            reservation_id (int): The ID of the reservation.
 
         Returns:
-            bool: Success of the operation.
+            bool: True if the operation is successful, False otherwise.
         """
 
         return await self._repository.delete_reservation_room(room_id, reservation_id)

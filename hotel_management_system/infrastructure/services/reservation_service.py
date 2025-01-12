@@ -1,4 +1,7 @@
-"""Module containing continent service implementation."""
+"""
+Module containing reservation service implementation.
+"""
+
 from datetime import date, datetime
 from typing import List
 
@@ -13,7 +16,9 @@ from hotel_management_system.core.services.i_room_service import IRoomService
 
 
 class ReservationService(IReservationService):
-    """A class implementing the reservation service."""
+    """
+    A class implementing the reservation service.
+    """
 
     _reservation_repository: IReservationRepository
     _reservation_room_service: IReservationRoomService
@@ -28,10 +33,15 @@ class ReservationService(IReservationService):
                  room_service: IRoomService,
                  bill_service: IBillService,
                  ) -> None:
-        """The initializer of the `reservation service`.
+        """
+        The initializer of the `reservation service`.
 
         Args:
-            repository (IReservationRepository): The reference to the repository.
+            reservation_repository (IReservationRepository): The reference to the reservation repository
+            reservation_room_service (IReservationRoomService): The reference to the reservation_room service
+            guest_service (IGuestService): The reference to the guest service
+            room_service (IRoomService): The reference to the room service
+            bill_service (IBillService): The reference to the bill service
         """
 
         self._reservation_repository = reservation_repository
@@ -41,10 +51,11 @@ class ReservationService(IReservationService):
         self._bill_service = bill_service
 
     async def get_all(self) -> List[Reservation]:
-        """The method getting all reservations from the repository.
+        """
+        Retrieve all reservations from the data storage.
 
         Returns:
-            List[reservationDTO]: All reservations.
+            List[Reservation]: A list of all reservations.
         """
 
         all_reservations = await self._reservation_repository.get_all_reservations()
@@ -52,13 +63,14 @@ class ReservationService(IReservationService):
         return [await self.parse_reservation(reservation) for reservation in all_reservations]
 
     async def get_by_id(self, reservation_id: int) -> Reservation | None:
-        """The method getting reservation by provided id.
+        """
+        Retrieve a reservation by its unique ID.
 
         Args:
-            reservation_id (int): The id of the reservation.
+            reservation_id (int): The ID of the reservation.
 
         Returns:
-            reservationDTO | None: The reservation details.
+            Reservation | None: The details of the reservation if found, or None if not found.
         """
 
         return await self.parse_reservation(
@@ -66,31 +78,44 @@ class ReservationService(IReservationService):
         )
 
     async def get_by_month(self, year: int, month_number: int) -> List[Reservation]:
-        """The method getting reservations made in the provided month
+        """
+        Retrieve reservations made during the specified month.
 
         Args:
-            month_number (int): The month number
+            year (int): The year of the reservations.
+            month_number (int): The month number (1 for January, 12 for December).
 
         Returns:
-            List[Reservation]: The reservations made in provided month
+            List[Reservation]: A list of reservations made in the specified month.
         """
 
         return [await self.parse_reservation(reservation) for reservation in await self._reservation_repository.get_by_month(year, month_number)]
 
     async def get_between_dates(self, start_date: date, end_date: date) -> List[Reservation]:
-        """The method getting reservations made between provided start_date and end_date
+        """
+        Retrieve reservations made between the provided start and end dates.
 
         Args:
-            start_date (date): The start date
-            end_date (date): The end date
+            start_date (date): The start date of the range.
+            end_date (date): The end date of the range.
 
         Returns:
-            List[Reservation]: The reservations made between the dates
+            List[Reservation]: A list of reservations made within the date range.
         """
 
         return [await self.parse_reservation(reservation) for reservation in await self._reservation_repository.get_between_dates(start_date, end_date)]
 
     async def get_by_year(self, year: int) -> List[Reservation]:
+        """
+        Retrieve reservations made during the specified year.
+
+        Args:
+            year (int): The year of the reservations.
+
+        Returns:
+            ist[Reservation]: A list of reservations made in the specified year.
+        """
+
         year_start = datetime.strptime(f'{year}-01-01', '%Y-%m-%d').date()
         year_end = datetime.strptime(f'{year}-12-31', '%Y-%m-%d').date()
 
@@ -98,8 +123,14 @@ class ReservationService(IReservationService):
 
     async def get_free_rooms(self, start_date: date, end_date: date) -> List[Room]:
         """
+        Retrieve rooms that are not reserved within the provided start and end dates.
 
-        :return:
+        Args:
+            start_date (date): The start date of the range.
+            end_date (date): The end date of the range.
+
+        Returns:
+            List[Room]: A list of free rooms within the date range.
         """
 
         all_rooms = await self._room_service.get_all()
@@ -122,13 +153,14 @@ class ReservationService(IReservationService):
         return free_rooms
 
     async def add_reservation(self, data: ReservationIn) -> Reservation | None:
-        """The method adding new reservation to the data storage.
+        """
+        Add a new reservation to the data storage.
 
         Args:
-            data (reservationIn): The details of the new reservation.
+            data (ReservationIn): The details of the new reservation.
 
         Returns:
-            reservation | None: Full details of the newly added reservation.
+            Reservation | None: The newly added reservation, or None if the operation fails.
         """
 
         return await self.parse_reservation(
@@ -140,14 +172,15 @@ class ReservationService(IReservationService):
             reservation_id: int,
             data: ReservationIn,
     ) -> Reservation | None:
-        """The method updating reservation data in the data storage.
+        """
+        Update the details of an existing reservation in the data storage.
 
         Args:
-            reservation_id (int): The id of the reservation.
-            data (reservationIn): The details of the updated reservation.
+            reservation_id (int): The ID of the reservation to update.
+            data (ReservationIn): The updated details for the reservation.
 
         Returns:
-            reservation | None: The updated reservation details.
+            Reservation | None: The updated reservation details, or None if the reservation is not found.
         """
 
         return await self.parse_reservation(
@@ -158,13 +191,14 @@ class ReservationService(IReservationService):
         )
 
     async def delete_reservation(self, reservation_id: int) -> bool:
-        """The method updating removing reservation from the data storage.
+        """
+        Remove a reservation from the data storage.
 
         Args:
-            reservation_id (int): The id of the reservation.
+            reservation_id (int): The ID of the reservation to remove.
 
         Returns:
-            bool: Success of the operation.
+            bool: True if the operation is successful, False otherwise.
         """
 
         return await self._reservation_repository.delete_reservation(reservation_id)

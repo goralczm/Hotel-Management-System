@@ -1,7 +1,3 @@
-"""Module containing airport-related domain models"""
-
-from typing import Optional
-
 from asyncpg import Record
 from pydantic import BaseModel, ConfigDict
 
@@ -17,7 +13,7 @@ class ReservationRoom(ReservationRoomIn):
 
     model_config = ConfigDict(
         from_attributes=True,
-        extra="ignore"
+        extra="ignore",
     )
 
     @classmethod
@@ -28,11 +24,12 @@ class ReservationRoom(ReservationRoomIn):
             record (Record): The DB record.
 
         Returns:
-            ReservationRoomDTO: The final DTO instance.
+            ReservationRoom: The final DTO instance.
         """
+
         record_dict = dict(record)
 
         return cls(
             reservation_id=record_dict.get("reservation_id"),
-            room_id=record_dict.get("room_id")
+            room_id=record_dict.get("room_id"),
         )

@@ -1,4 +1,4 @@
-"""A module containing continent endpoints."""
+"""A module containing reservation_room endpoints."""
 
 from typing import Iterable
 from dependency_injector.wiring import inject, Provide
@@ -21,18 +21,21 @@ async def create_reservation_room(
         reservation_service: IReservationService = Depends(Provide[Container.reservation_service]),
         reservation_room_service: IReservationRoomService = Depends(Provide[Container.reservation_room_service]),
 ) -> dict:
-    """An endpoint for adding new reservation_room.
+    """
+    Create a new reservation room.
 
     Args:
-        reservation_room (ReservationRoomIn): The reservation_room data.
-        room_service (IRoomService, optional): The injected room service dependency
-        reservation_service (IReservationService, optional): The injected reservation service dependency
-        reservation_room_service (IReservationRoomService, optional): The injected service dependency.
+        reservation_room (ReservationRoomIn): The reservation room data to be added.
+        room_service (IRoomService, optional): The injected room service dependency.
+        reservation_service (IReservationService, optional): The injected reservation service dependency.
+        reservation_room_service (IReservationRoomService, optional): The injected reservation room service dependency.
 
     Returns:
-        dict: The new reservation_room attributes.
-    """
+        dict: The attributes of the newly created reservation room.
 
+    Raises:
+        HTTPException: If the room ID or reservation ID is not found.
+    """
     if not await room_service.get_by_id(reservation_room.room_id):
         raise HTTPException(status_code=404, detail="Room id not found")
 
@@ -49,41 +52,41 @@ async def create_reservation_room(
 async def get_all_reservation_rooms(
         service: IReservationRoomService = Depends(Provide[Container.reservation_room_service]),
 ) -> Iterable:
-    """An endpoint for getting all reservation_rooms.
+    """
+    Retrieve all reservation rooms.
 
     Args:
-        service (IReservationRoomService, optional): The injected service dependency.
+        service (IReservationRoomService, optional): The injected reservation room service dependency.
 
     Returns:
-        Iterable: The reservation_room attributes collection.
+        Iterable: A collection of reservation room attributes.
     """
-
     reservation_rooms = await service.get_all()
 
     return reservation_rooms
 
-@router.get(
-    "/room_id/{room_id}",
-    response_model=ReservationRoom,
-    status_code=200,
-)
+
+@router.get("/room_id/{room_id}", response_model=ReservationRoom, status_code=200)
 @inject
 async def get_reservation_room_by_id(
         room_id: int,
         reservation_id: int,
         service: IReservationRoomService = Depends(Provide[Container.reservation_room_service]),
 ) -> dict | None:
-    """An endpoint for getting reservation_room by id.
+    """
+    Retrieve a specific reservation room by room ID and reservation ID.
 
     Args:
-        room_id (int): The id of the room
-        reservation_id (int): The id of the accessibility_option.
-        service (IReservationRoomService, optional): The injected service dependency.
+        room_id (int): The ID of the room.
+        reservation_id (int): The ID of the reservation.
+        service (IReservationRoomService, optional): The injected reservation room service dependency.
 
     Returns:
-        dict | None: The reservation_room details.
-    """
+        dict | None: The reservation room details, or None if not found.
 
+    Raises:
+        HTTPException: If the reservation room is not found.
+    """
     if reservation_room := await service.get_by_id(room_id, reservation_id):
         return reservation_room.model_dump()
 
@@ -98,21 +101,21 @@ async def update_reservation_room(
         updated_reservation_room: ReservationRoomIn,
         service: IReservationRoomService = Depends(Provide[Container.reservation_room_service]),
 ) -> dict:
-    """An endpoint for updating reservation_room data.
+    """
+    Update the details of an existing reservation room.
 
     Args:
-        room_id (int): The id of the room
-        reservation_id (int): The id of the accessibility_option.
-        updated_reservation_room (ReservationRoomIn): The updated reservation_room details.
-        service (IReservationRoomService, optional): The injected service dependency.
-
-    Raises:
-        HTTPException: 404 if reservation_room does not exist.
+        room_id (int): The ID of the room.
+        reservation_id (int): The ID of the reservation.
+        updated_reservation_room (ReservationRoomIn): The updated reservation room data.
+        service (IReservationRoomService, optional): The injected reservation room service dependency.
 
     Returns:
-        dict: The updated reservation_room details.
-    """
+        dict: The updated reservation room details.
 
+    Raises:
+        HTTPException: If the reservation room does not exist.
+    """
     if await service.get_by_id(room_id=room_id, reservation_id=reservation_id):
         await service.update_reservation_room(
             room_id=room_id,
@@ -131,20 +134,19 @@ async def delete_reservation_room(
         reservation_id: int,
         service: IReservationRoomService = Depends(Provide[Container.reservation_room_service]),
 ) -> None:
-    """An endpoint for deleting reservation_rooms.
+    """
+    Delete an existing reservation room.
 
     Args:
-        room_id (int): The id of the room
-        reservation_id (int): The id of the accessibility_option.
-        service (IcontinentService, optional): The injected service dependency.
+        room_id (int): The ID of the room.
+        reservation_id (int): The ID of the reservation.
+        service (IReservationRoomService, optional): The injected reservation room service dependency.
 
     Raises:
-        HTTPException: 404 if reservation_room does not exist.
+        HTTPException: If the reservation room does not exist.
     """
-
     if await service.get_by_id(room_id=room_id, reservation_id=reservation_id):
         await service.delete_reservation_room(room_id, reservation_id)
-
         return
 
     raise HTTPException(status_code=404, detail="ReservationRoom not found")

@@ -1,8 +1,10 @@
-"""Module containing guest_accessibility_option repository implementation."""
+"""
+Module containing guest_accessibility_option repository implementation.
+"""
 
-from typing import Any, Iterable
+from typing import List
 
-from asyncpg import Record  # type: ignore
+from asyncpg import Record
 from sqlalchemy import select
 
 from hotel_management_system.core.repositories.i_guest_accessibility_option_repository import IGuestAccessibilityOptionRepository
@@ -14,13 +16,16 @@ from hotel_management_system.db import (
 
 
 class GuestAccessibilityOptionRepository(IGuestAccessibilityOptionRepository):
-    """A class representing continent DB repository."""
+    """
+    A class representing guest_accessiblity_option DB repository.
+    """
 
-    async def get_all_guest_accessibility_options(self) -> Iterable[Any]:
-        """The method getting all guest_accessibility_options from the data storage.
+    async def get_all_guest_accessibility_options(self) -> List[GuestAccessibilityOption]:
+        """
+        Retrieve all guest accessibility options from the data storage.
 
         Returns:
-            Iterable[Any]: guest_accessibility_options in the data storage.
+            List[GuestAccessibilityOption]: A collection of all guest accessibility options.
         """
 
         query = (
@@ -30,28 +35,31 @@ class GuestAccessibilityOptionRepository(IGuestAccessibilityOptionRepository):
 
         return [GuestAccessibilityOption.from_record(guest_accessibility_option) for guest_accessibility_option in guest_accessibility_options]
 
-    async def get_by_id(self, guest_id: int, accessibility_option_id: int) -> Iterable[Any] | None:
-        """The method getting guest_accessibility_option by provided id.
+    async def get_by_id(self, guest_id: int, accessibility_option_id: int) -> List[GuestAccessibilityOption] | None:
+        """
+        Retrieve a guest accessibility option by guest ID and accessibility option ID.
 
         Args:
-            guest_id (int): The id of the guest
-            accessibility_option_id (int): The id of the accessibility_option.
+            guest_id (int): The ID of the guest.
+            accessibility_option_id (int): The ID of the accessibility option.
 
         Returns:
-            Any | None: The guest_accessibility_option details.
+            GuestAccessibilityOption | None: The details of the guest accessibility option if found
         """
+
         guest_accessibility_option = await self._get_by_id(guest_id, accessibility_option_id)
 
         return GuestAccessibilityOption.from_record(guest_accessibility_option) if guest_accessibility_option else None
 
-    async def get_by_guest_id(self, guest_id: int) -> Iterable[GuestAccessibilityOption] | None:
-        """The method getting guest_accessibility_option by provided guest_id.
+    async def get_by_guest_id(self, guest_id: int) -> List[GuestAccessibilityOption] | None:
+        """
+        Retrieve all accessibility options associated with a specific guest ID.
 
         Args:
-            guest_id (int): The id of the guest
+            guest_id (int): The ID of the guest.
 
         Returns:
-            ReservationRoom | None: The accessibility_option_guest details.
+            List[GuestAccessibilityOption]: A collection of guest accessibility options if found
         """
 
         query = (
@@ -62,14 +70,15 @@ class GuestAccessibilityOptionRepository(IGuestAccessibilityOptionRepository):
 
         return [GuestAccessibilityOption.from_record(guest_accessibility_option) for guest_accessibility_option in guest_accessibility_options]
 
-    async def get_by_accessibility_option_id(self, accessibility_option_id: int) -> Iterable[GuestAccessibilityOption] | None:
-        """The method getting guest_accessibility_option's by provided accessibility_option id.
+    async def get_by_accessibility_option_id(self, accessibility_option_id: int) -> List[GuestAccessibilityOption] | None:
+        """
+        Retrieve all guest accessibility options associated with a specific accessibility option ID.
 
         Args:
-            accessibility_option_id (int): The id of the accessibility_option
+            accessibility_option_id (int): The ID of the accessibility option.
 
         Returns:
-            ReservationRoom | None: The accessibility_option_guest details.
+            List[GuestAccessibilityOption]: A collection of guest accessibility options if found
         """
 
         query = (
@@ -81,17 +90,15 @@ class GuestAccessibilityOptionRepository(IGuestAccessibilityOptionRepository):
         return [GuestAccessibilityOption.from_record(guest_accessibility_option) for guest_accessibility_option in guest_accessibility_options]
 
 
-    async def add_guest_accessibility_option(self, data: GuestAccessibilityOptionIn) -> Any | None:
-        """The method adding new guest_accessibility_option to the data storage.
+    async def add_guest_accessibility_option(self, data: GuestAccessibilityOptionIn) -> GuestAccessibilityOption | None:
+        """
+        Add a new guest accessibility option to the data storage.
 
         Args:
-            data (guest_accessibility_optionIn): The details of the new guest_accessibility_option.
+            data (GuestAccessibilityOptionIn): The details of the new guest accessibility option.
 
         Returns:
-            guest_accessibility_option: Full details of the newly added guest_accessibility_option.
-
-        Returns:
-            Any | None: The newly added guest_accessibility_option.
+            GuestAccessibilityOption | None: The newly added guest accessibility option, or None if the operation fails.
         """
 
         query = guests_accessibility_options_table.insert().values(**data.model_dump())
@@ -104,16 +111,17 @@ class GuestAccessibilityOptionRepository(IGuestAccessibilityOptionRepository):
             guest_id: int,
             accessibility_option_id: int,
             data: GuestAccessibilityOptionIn,
-    ) -> Any | None:
-        """The abstract updating guest_accessibility_option data in the data storage.
+    ) -> GuestAccessibilityOption | None:
+        """
+        Update an existing guest accessibility option in the data storage.
 
         Args:
-            guest_id (int): The id of the guest.
-            accessibility_option_id (int): The id of the accessibility_option.
-            data (GuestIn): The details of the updated guest_accessibility_option.
+            guest_id (int): The ID of the guest.
+            accessibility_option_id (int): The ID of the accessibility option.
+            data (GuestAccessibilityOptionIn): The updated data for the guest accessibility option.
 
         Returns:
-            Any | None: The updated guest_accessibility_option details.
+            GuestAccessibilityOption | None: The updated guest accessibility option, or None if not found.
         """
 
         if self._get_by_id(guest_id, accessibility_option_id):
@@ -132,14 +140,15 @@ class GuestAccessibilityOptionRepository(IGuestAccessibilityOptionRepository):
         return None
 
     async def delete_guest_accessibility_option(self, guest_id: int, accessibility_option_id: int) -> bool:
-        """The abstract updating removing guest_accessibility_option from the data storage.
+        """
+        Remove a guest accessibility option from the data storage.
 
         Args:
-            guest_id (int): The id of the guest
-            accessibility_option_id (int): The id of the accessibility_option.
+            guest_id (int): The ID of the guest.
+            accessibility_option_id (int): The ID of the accessibility option.
 
         Returns:
-            bool: Success of the operation.
+            bool: True if the operation is successful, False otherwise.
         """
 
         if self._get_by_id(guest_id, accessibility_option_id):
@@ -161,7 +170,7 @@ class GuestAccessibilityOptionRepository(IGuestAccessibilityOptionRepository):
             accessibility_option_id (int): The ID of the accessibility_option.
 
         Returns:
-            Any | None: guest_accessibility_option record if exists.
+            GuestAccessibilityOption | None: guest_accessibility_option record if exists.
         """
 
         query = (

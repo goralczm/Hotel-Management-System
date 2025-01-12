@@ -1,4 +1,6 @@
-"""Module containing room service abstractions."""
+"""
+Module for managing room service abstractions.
+"""
 
 from abc import ABC, abstractmethod
 from datetime import date
@@ -12,32 +14,35 @@ class IRoomService(ABC):
 
     @abstractmethod
     async def get_all(self) -> List[Room]:
-        """The method getting all rooms from the repository.
+        """
+        Retrieve all rooms from the data storage.
 
         Returns:
-            Iterable[roomDTO]: All rooms.
+            List[Room]: A list of all rooms stored in the database.
         """
 
     @abstractmethod
     async def get_by_id(self, room_id: int) -> Room | None:
-        """The method getting room by provided id.
+        """
+        Retrieve a room by its unique ID.
 
         Args:
-            room_id (int): The id of the room.
+            room_id (int): The ID of the room.
 
         Returns:
-            roomDTO | None: The room details.
+            Room | None: The room details if found, or None if no room with the given ID exists.
         """
 
     @abstractmethod
     async def add_room(self, data: RoomIn) -> Room | None:
-        """The method adding new room to the data storage.
+        """
+        Add a new room to the data storage.
 
         Args:
-            data (roomIn): The details of the new room.
+            data (RoomIn): The details of the new room.
 
         Returns:
-            room | None: Full details of the newly added room.
+            Room | None: The newly added room if successful, or None if the operation fails.
         """
 
     @abstractmethod
@@ -46,23 +51,25 @@ class IRoomService(ABC):
             room_id: int,
             data: RoomIn,
     ) -> Room | None:
-        """The method updating room data in the data storage.
+        """
+        Update the details of an existing room in the data storage.
 
         Args:
-            room_id (int): The id of the room.
-            data (roomIn): The details of the updated room.
+            room_id (int): The ID of the room to update.
+            data (RoomIn): The updated room details.
 
         Returns:
-            room | None: The updated room details.
+            Room | None: The updated room details if successful, or None if no room with the given ID exists.
         """
 
     @abstractmethod
     async def delete_room(self, room_id: int) -> bool:
-        """The method updating removing room from the data storage.
+        """
+        Remove a room from the data storage.
 
         Args:
-            room_id (int): The id of the room.
+            room_id (int): The ID of the room to remove.
 
         Returns:
-            bool: Success of the operation.
+            bool: True if the operation was successful, False otherwise.
         """

@@ -28,11 +28,11 @@ class RoomAccessibilityOption(RoomAccessibilityOptionIn):
             record (Record): The DB record.
 
         Returns:
-            RoomAccessibilityDTO: The final DTO instance.
+            RoomAccessibilityOption: The final DTO instance.
         """
         record_dict = dict(record)
 
         return cls(
-            room_id=record_dict.get("room_id"),  # type: ignore
-            accessibility_option_id=record_dict.get("accessibility_option_id")
+            room_id=record_dict.get("room_id"),
+            accessibility_option_id=record_dict.get("accessibility_option_id"),
         )

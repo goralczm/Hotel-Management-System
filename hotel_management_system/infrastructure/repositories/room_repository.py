@@ -1,27 +1,31 @@
-"""Module containing room repository implementation."""
-from datetime import date
+"""
+Module containing room repository implementation.
+"""
+
 from typing import List
 
-from asyncpg import Record  # type: ignore
+from asyncpg import Record
 from sqlalchemy import select
 
 from hotel_management_system.core.repositories.i_room_repository import IRoomRepository
 from hotel_management_system.core.domains.room import Room, RoomIn
 from hotel_management_system.db import (
     rooms_table,
-    reservation_rooms_table,
     database,
 )
 
 
 class RoomRepository(IRoomRepository):
-    """A class representing continent DB repository."""
+    """
+    A class representing room DB repository.
+    """
 
     async def get_all_rooms(self) -> List[Room]:
-        """The method getting all rooms from the data storage.
+        """
+        Retrieve all rooms from the data storage.
 
         Returns:
-            Iterable[Any]: rooms in the data storage.
+            List[Room]: A list of all rooms stored in the database.
         """
 
         query = (
@@ -34,29 +38,29 @@ class RoomRepository(IRoomRepository):
         return [Room.from_record(room) for room in rooms]
 
     async def get_by_id(self, room_id: int) -> Room | None:
-        """The method getting room by provided id.
+        """
+        Retrieve a room by its unique ID.
 
         Args:
-            room_id (int): The id of the room.
+            room_id (int): The ID of the room.
 
         Returns:
-            Any | None: The room details.
+            Room | None: The room details if found, or None if no room with the given ID exists.
         """
+
         room = await self._get_by_id(room_id)
 
         return Room.from_record(room) if room else None
 
     async def add_room(self, data: RoomIn) -> Room | None:
-        """The method adding new room to the data storage.
+        """
+        Add a new room to the data storage.
 
         Args:
-            data (roomIn): The details of the new room.
+            data (RoomIn): The details of the new room.
 
         Returns:
-            room: Full details of the newly added room.
-
-        Returns:
-            Any | None: The newly added room.
+            Room | None: The newly added room if successful, or None if the operation fails.
         """
 
         query = rooms_table.insert().values(**data.model_dump())
@@ -69,14 +73,15 @@ class RoomRepository(IRoomRepository):
             room_id: int,
             data: RoomIn,
     ) -> Room | None:
-        """The method updating room data in the data storage.
+        """
+        Update the details of an existing room in the data storage.
 
         Args:
-            room_id (int): The id of the room.
-            data (roomIn): The details of the updated room.
+            room_id (int): The ID of the room to update.
+            data (RoomIn): The updated room details.
 
         Returns:
-            Any | None: The updated room details.
+            Room | None: The updated room details if successful, or None if no room with the given ID exists.
         """
 
         if self._get_by_id(room_id):
@@ -92,14 +97,16 @@ class RoomRepository(IRoomRepository):
         return None
 
     async def delete_room(self, room_id: int) -> bool:
-        """The method updating removing room from the data storage.
+        """
+        Remove a room from the data storage.
 
         Args:
-            room_id (int): The id of the room.
+            room_id (int): The ID of the room to remove.
 
         Returns:
-            bool: Success of the operation.
+            bool: True if the operation was successful, False otherwise.
         """
+
 
         if self._get_by_id(room_id):
             query = rooms_table \

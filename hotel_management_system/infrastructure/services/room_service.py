@@ -1,4 +1,7 @@
-"""Module containing continent service implementation."""
+"""
+Module containing room service implementation.
+"""
+
 from datetime import date
 from typing import List
 
@@ -12,7 +15,9 @@ from hotel_management_system.core.services.i_room_service import IRoomService
 
 
 class RoomService(IRoomService):
-    """A class implementing the room service."""
+    """
+    A class implementing the room service.
+    """
 
     _room_repository: IRoomRepository
     _room_accessibility_option_repository: IRoomAccessibilityOptionRepository
@@ -25,10 +30,16 @@ class RoomService(IRoomService):
                  accessibility_option_repository: IAccessibilityOptionRepository,
                  reservation_room_service: IReservationRoomService,
                  ) -> None:
-        """The initializer of the `room service`.
+        """
+        The initializer of the `room service`.
 
         Args:
-            repository (IroomRepository): The reference to the repository.
+            room_repository (IRoomRepository): The reference to the room repository
+            room_accessibility_option_repository (IRoomAccessibilityOptionRepository): The reference to the
+                                                                                    room_accessibility_option repository
+            accessibility_option_repository (IAccessibilityOptionRepository): The reference to the
+                                                                            accessibility_option_repository repository
+            reservation_room_service (IReservationRoomService): The reference to the reservation_room service
         """
 
         self._room_repository = room_repository
@@ -37,10 +48,11 @@ class RoomService(IRoomService):
         self._reservation_room_service = reservation_room_service
 
     async def get_all(self) -> List[Room]:
-        """The method getting all rooms from the repository.
+        """
+        Retrieve all rooms from the data storage.
 
         Returns:
-            Iterable[roomDTO]: All rooms.
+            List[Room]: A list of all rooms stored in the database.
         """
 
         all_rooms = await self._room_repository.get_all_rooms()
@@ -48,13 +60,14 @@ class RoomService(IRoomService):
         return [await self.parse_room(room) for room in all_rooms]
 
     async def get_by_id(self, room_id: int) -> Room | None:
-        """The method getting room by provided id.
+        """
+        Retrieve a room by its unique ID.
 
         Args:
-            room_id (int): The id of the room.
+            room_id (int): The ID of the room.
 
         Returns:
-            roomDTO | None: The room details.
+            Room | None: The room details if found, or None if no room with the given ID exists.
         """
 
         return await self.parse_room(
@@ -62,13 +75,14 @@ class RoomService(IRoomService):
         )
 
     async def add_room(self, data: RoomIn) -> Room | None:
-        """The method adding new room to the data storage.
+        """
+        Add a new room to the data storage.
 
         Args:
-            data (roomIn): The details of the new room.
+            data (RoomIn): The details of the new room.
 
         Returns:
-            room | None: Full details of the newly added room.
+            Room | None: The newly added room if successful, or None if the operation fails.
         """
 
         return await self.parse_room(
@@ -80,14 +94,15 @@ class RoomService(IRoomService):
             room_id: int,
             data: RoomIn,
     ) -> Room | None:
-        """The method updating room data in the data storage.
+        """
+        Update the details of an existing room in the data storage.
 
         Args:
-            room_id (int): The id of the room.
-            data (roomIn): The details of the updated room.
+            room_id (int): The ID of the room to update.
+            data (RoomIn): The updated room details.
 
         Returns:
-            room | None: The updated room details.
+            Room | None: The updated room details if successful, or None if no room with the given ID exists.
         """
 
         return await self.parse_room(
@@ -98,14 +113,16 @@ class RoomService(IRoomService):
         )
 
     async def delete_room(self, room_id: int) -> bool:
-        """The method updating removing room from the data storage.
+        """
+        Remove a room from the data storage.
 
         Args:
-            room_id (int): The id of the room.
+            room_id (int): The ID of the room to remove.
 
         Returns:
-            bool: Success of the operation.
+            bool: True if the operation was successful, False otherwise.
         """
+
 
         return await self._room_repository.delete_room(room_id)
 

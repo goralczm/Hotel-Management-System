@@ -1,7 +1,9 @@
-"""Module containing invoice service abstractions."""
+"""
+Module for managing invoice service abstractions.
+"""
 
 from abc import ABC, abstractmethod
-from typing import Iterable
+from typing import Iterable, List
 
 from hotel_management_system.core.domains.invoice import Invoice, InvoiceIn
 
@@ -10,58 +12,59 @@ class IInvoiceService(ABC):
     """A class representing invoice repository."""
 
     @abstractmethod
-    async def get_all(self) -> Iterable[Invoice]:
-        """The method getting all invoices from the repository.
+    async def get_all(self) -> List[Invoice]:
+        """
+        Retrieve all invoices from the data storage.
 
         Returns:
-            Iterable[invoiceDTO]: All invoices.
+            List[Invoice]: A list of all invoices.
         """
 
     @abstractmethod
     async def get_by_id(self, invoice_id: int) -> Invoice | None:
-        """The method getting invoice by provided id.
+        """
+        Retrieve an invoice by its unique ID.
 
         Args:
-            invoice_id (int): The id of the invoice.
+            invoice_id (int): The ID of the invoice.
 
         Returns:
-            invoiceDTO | None: The invoice details.
+            Invoice | None: The details of the invoice if found, or None if not found.
         """
 
     @abstractmethod
     async def add_invoice(self, data: InvoiceIn) -> Invoice | None:
-        """The method adding new invoice to the data storage.
+        """
+        Add a new invoice to the data storage.
 
         Args:
-            data (invoiceIn): The details of the new invoice.
+            data (InvoiceIn): The details of the new invoice.
 
         Returns:
-            invoice | None: Full details of the newly added invoice.
+            Invoice | None: The newly added invoice, or None if the operation fails.
         """
 
     @abstractmethod
-    async def update_invoice(
-            self,
-            invoice_id: int,
-            data: InvoiceIn,
-    ) -> Invoice | None:
-        """The method updating invoice data in the data storage.
+    async def update_invoice(self, invoice_id: int, data: InvoiceIn) -> Invoice | None:
+        """
+        Update an existing invoice's data in the data storage.
 
         Args:
-            invoice_id (int): The id of the invoice.
-            data (invoiceIn): The details of the updated invoice.
+            invoice_id (int): The ID of the invoice to update.
+            data (InvoiceIn): The updated details for the invoice.
 
         Returns:
-            invoice | None: The updated invoice details.
+            Invoice | None: The updated invoice details, or None if the invoice is not found.
         """
 
     @abstractmethod
     async def delete_invoice(self, invoice_id: int) -> bool:
-        """The method updating removing invoice from the data storage.
+        """
+        Remove an invoice from the data storage.
 
         Args:
-            invoice_id (int): The id of the invoice.
+            invoice_id (int): The ID of the invoice to remove.
 
         Returns:
-            bool: Success of the operation.
+            bool: True if the operation is successful, False otherwise.
         """

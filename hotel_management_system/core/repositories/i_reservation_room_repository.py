@@ -1,4 +1,6 @@
-"""Module containing reservation_room repository abstractions."""
+"""
+Module for managing reservation_room repository abstractions.
+"""
 
 from abc import ABC, abstractmethod
 from typing import List
@@ -7,59 +9,66 @@ from hotel_management_system.core.domains.reservation_room import ReservationRoo
 
 
 class IReservationRoomRepository(ABC):
-    """An abstract class representing protocol of continent repository."""
+    """
+    Abstract base class defining the interface for a reservation room repository.
+    """
 
     @abstractmethod
     async def get_all_reservation_rooms(self) -> List[ReservationRoom]:
-        """The abstract getting all reservation_rooms from the data storage.
+        """
+        Retrieve all reservation rooms from the data storage.
 
         Returns:
-            List[ReservationRoom]: Guests in the data storage.
+            List[ReservationRoom]: A list of all reservation rooms.
         """
 
     @abstractmethod
     async def get_by_id(self, room_id: int, reservation_id: int) -> List[ReservationRoom] | None:
-        """The method getting reservation_room by provided id.
+        """
+        Retrieve a reservation room by its unique room ID and reservation ID.
 
         Args:
-            room_id (int): The id of the room
-            reservation_id (int): The id of the accessibility_option.
+            room_id (int): The ID of the room.
+            reservation_id (int): The ID of the reservation.
 
         Returns:
-            reservation_roomDTO | None: The reservation_room details.
+            List[ReservationRoom] | None: The reservation room details if found, or None if not found.
         """
 
     @abstractmethod
     async def get_by_room_id(self, room_id: int) -> List[ReservationRoom] | None:
-        """The method getting reservation_room by provided room_id.
+        """
+        Retrieve reservation rooms for a specific room ID.
 
         Args:
-            room_id (int): The id of the room
+            room_id (int): The ID of the room.
 
         Returns:
-            ReservationRoom | None: The reservation_room details.
+            List[ReservationRoom] | None: The reservation rooms for the specified room, or None if no rooms are found.
         """
 
     @abstractmethod
-    async def get_by_reservation_id(self, reservation_id: int) -> ReservationRoom | None:
-        """The method getting reservation_room's by provided reservation id.
+    async def get_by_reservation_id(self, reservation_id: int) -> List[ReservationRoom]:
+        """
+        Retrieve a reservation room by its reservation ID.
 
         Args:
-            reservation_id (int): The id of the reservation
+            reservation_id (int): The ID of the reservation.
 
         Returns:
-            ReservationRoom | None: The reservation_room details.
+            ReservationRoom | None: The reservation room details if found
         """
 
     @abstractmethod
     async def add_reservation_room(self, data: ReservationRoomIn) -> ReservationRoom | None:
-        """The abstract adding new reservation_room to the data storage.
+        """
+        Add a new reservation room to the data storage.
 
         Args:
-            data (GuestIn): The details of the new reservation_room.
+            data (ReservationRoomIn): The details of the new reservation room.
 
         Returns:
-            ReservationRoom | None: The newly added reservation_room.
+            ReservationRoom | None: The newly added reservation room, or None if the operation fails.
         """
 
     @abstractmethod
@@ -69,25 +78,27 @@ class IReservationRoomRepository(ABC):
             reservation_id: int,
             data: ReservationRoomIn,
     ) -> ReservationRoom | None:
-        """The abstract updating reservation_room data in the data storage.
+        """
+        Update the details of an existing reservation room in the data storage.
 
         Args:
-            room_id (int): The id of the room.
-            reservation_id (int): The id of the accessibility_option.
-            data (GuestIn): The details of the updated reservation_room.
+            room_id (int): The ID of the room.
+            reservation_id (int): The ID of the reservation.
+            data (ReservationRoomIn): The updated details for the reservation room.
 
         Returns:
-            ReservationRoom | None: The updated reservation_room details.
+            ReservationRoom | None: The updated reservation room details, or None if the reservation room is not found.
         """
 
     @abstractmethod
     async def delete_reservation_room(self, room_id: int, reservation_id: int) -> bool:
-        """The abstract updating removing reservation_room from the data storage.
+        """
+        Remove a reservation room from the data storage.
 
         Args:
-            room_id (int): The id of the room
-            reservation_id (int): The id of the accessibility_option.
+            room_id (int): The ID of the room.
+            reservation_id (int): The ID of the reservation.
 
         Returns:
-            bool: Success of the operation.
+            bool: True if the operation is successful, False otherwise.
         """

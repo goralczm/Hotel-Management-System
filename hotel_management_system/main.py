@@ -1,4 +1,6 @@
-"""Main module of the app"""
+"""
+Main module of the app
+"""
 
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
@@ -40,7 +42,9 @@ container.wire(modules=[
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncGenerator:
-    """Lifespan function working on app startup."""
+    """
+    Lifespan function working on app startup.
+    """
     await init_db()
     await database.connect()
     await setup.main()

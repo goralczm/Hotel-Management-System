@@ -27,7 +27,7 @@ class Guest(GuestIn):
 
     model_config = ConfigDict(
         from_attributes=True,
-        extra="ignore"
+        extra="ignore",
     )
 
     @classmethod
@@ -43,13 +43,13 @@ class Guest(GuestIn):
         record_dict = dict(record)
 
         return cls(
-            id=record_dict.get("id"),  # type: ignore
+            id=record_dict.get("id"),
             first_name=record_dict.get("first_name"),
-            last_name=record_dict.get("last_name"),  # type: ignore
-            address=record_dict.get("address"),  # type: ignore
-            city=record_dict.get("city"),  # type: ignore
-            country=record_dict.get("country"),  # type: ignore
-            zip_code=record_dict.get("zip_code"),  # type: ignore
-            phone_number=record_dict.get("phone_number"),  # type: ignore
-            email=record_dict.get("email")
+            last_name=record_dict.get("last_name"),
+            address=record_dict.get("address"),
+            city=record_dict.get("city"),
+            country=record_dict.get("country"),
+            zip_code=record_dict.get("zip_code"),
+            phone_number=record_dict.get("phone_number"),
+            email=record_dict.get("email"),
         )

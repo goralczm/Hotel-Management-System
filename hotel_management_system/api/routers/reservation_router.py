@@ -1,4 +1,5 @@
-"""A module containing continent endpoints."""
+"""A module containing reservation endpoints."""
+
 from datetime import date
 from typing import Iterable, List
 from dependency_injector.wiring import inject, Provide
@@ -14,7 +15,6 @@ from hotel_management_system.core.services.i_guest_service import IGuestService
 from hotel_management_system.core.services.i_pricing_detail_service import IPricingDetailService
 from hotel_management_system.core.services.i_reservation_room_service import IReservationRoomService
 from hotel_management_system.core.services.i_reservation_service import IReservationService
-from hotel_management_system.core.services.i_room_accessibility_option_service import IRoomAccessibilityOptionService
 from hotel_management_system.core.services.i_room_service import IRoomService
 
 router = APIRouter()
@@ -28,13 +28,28 @@ async def create_best_reservation(
         reservation_service: IReservationService = Depends(Provide[Container.reservation_service]),
         guest_service: IGuestService = Depends(Provide[Container.guest_service]),
 ) -> Reservation | dict:
+    """
+    Create a reservation with the best available rooms based on guest preferences.
+
+    Args:
+        reservation (ReservationIn): The reservation data.
+        number_of_rooms (int): The number of rooms to reserve.
+        reservation_service (IReservationService, optional): The injected reservation service dependency.
+        guest_service (IGuestService, optional): The injected guest service dependency.
+
+    Returns:
+        Reservation | dict: The reservation details or an empty dictionary if no reservation is created.
+
+    Raises:
+        HTTPException: If the guest does not exist or if there are not enough available rooms.
+    """
     if not await guest_service.get_by_id(reservation.guest_id):
         raise HTTPException(status_code=404, detail=f"No guest with id: {reservation.guest_id}")
 
     free_rooms = await reservation_service.get_free_rooms(reservation.start_date, reservation.end_date)
 
     if number_of_rooms > len(free_rooms):
-        raise HTTPException(status_code=409, detail="Not sufficient number of free rooms")
+        raise HTTPException(status_code=409, detail="Not enough free rooms available")
 
     guest = await guest_service.get_by_id(reservation.guest_id)
 
@@ -66,16 +81,25 @@ async def create_reservation(
         bill_service: IBillService = Depends(Provide[Container.bill_service]),
         pricing_detail_service: IPricingDetailService = Depends(Provide[Container.pricing_detail_service]),
 ) -> Reservation | dict:
-    """An endpoint for adding new reservation.
+    """
+    Create a new reservation and assign rooms to it.
 
     Args:
         reservation (ReservationIn): The reservation data.
-        reservation_service (IReservationService, optional): The injected service dependency.
+        room_ids (List[int]): The list of room IDs to reserve.
+        reservation_service (IReservationService, optional): The injected reservation service dependency.
+        room_service (IRoomService, optional): The injected room service dependency.
+        reservation_room_service (IReservationRoomService, optional): The injected reservation room service dependency.
+        guest_service (IGuestService, optional): The injected guest service dependency.
+        bill_service (IBillService, optional): The injected bill service dependency.
+        pricing_detail_service (IPricingDetailService, optional): The injected pricing detail service dependency.
 
     Returns:
-        dict: The new reservation attributes.
-    """
+        Reservation | dict: The new reservation details or an empty dictionary if the reservation was not created.
 
+    Raises:
+        HTTPException: If the guest or rooms are not found, or if no pricing detail is found.
+    """
     if not await guest_service.get_by_id(reservation.guest_id):
         raise HTTPException(status_code=404, detail=f"No guest with id: {reservation.guest_id}")
 
@@ -109,13 +133,24 @@ async def create_reservation(
     return new_reservation if new_reservation else {}
 
 
-@router.get("/free_rooms", response_model=Iterable[Room], status_code=201)
+@router.get("/free_rooms", response_model=Iterable[Room], status_code=200)
 @inject
 async def get_all_free_rooms(
         start_date: date,
         end_date: date,
         service: IReservationService = Depends(Provide[Container.reservation_service]),
 ) -> Iterable:
+    """
+    Get all free rooms for the given date range.
+
+    Args:
+        start_date (date): The start date for the reservation period.
+        end_date (date): The end date for the reservation period.
+        service (IReservationService, optional): The injected reservation service dependency.
+
+    Returns:
+        Iterable[Room]: A list of free rooms.
+    """
     return await service.get_free_rooms(start_date, end_date)
 
 
@@ -124,15 +159,15 @@ async def get_all_free_rooms(
 async def get_all_reservations(
         service: IReservationService = Depends(Provide[Container.reservation_service]),
 ) -> Iterable:
-    """An endpoint for getting all reservations.
+    """
+    Get all reservations.
 
     Args:
-        service (IReservationService, optional): The injected service dependency.
+        service (IReservationService, optional): The injected reservation service dependency.
 
     Returns:
-        Iterable: The reservation attributes collection.
+        Iterable[Reservation]: A collection of reservation details.
     """
-
     reservations = await service.get_all()
 
     return reservations
@@ -145,40 +180,41 @@ async def get_all_reservations_between_months(
         end_date: date,
         service: IReservationService = Depends(Provide[Container.reservation_service]),
 ) -> Iterable:
-    """An endpoint for getting all reservations.
+    """
+    Get all reservations within a specified date range.
 
     Args:
-        service (IReservationService, optional): The injected service dependency.
+        start_date (date): The start date of the date range.
+        end_date (date): The end date of the date range.
+        service (IReservationService, optional): The injected reservation service dependency.
 
     Returns:
-        Iterable: The reservation attributes collection.
+        Iterable[Reservation]: A collection of reservations within the given date range.
     """
-
     reservations = await service.get_between_dates(start_date, end_date)
 
     return reservations
 
 
-@router.get(
-    "/{reservation_id}",
-    response_model=Reservation,
-    status_code=200,
-)
+@router.get("/{reservation_id}", response_model=Reservation, status_code=200)
 @inject
 async def get_reservation_by_id(
         reservation_id: int,
         service: IReservationService = Depends(Provide[Container.reservation_service]),
 ) -> Reservation | None:
-    """An endpoint for getting reservation by id.
+    """
+    Get reservation details by ID.
 
     Args:
-        reservation_id (int): The id of the reservation.
-        service (IReservationService, optional): The injected service dependency.
+        reservation_id (int): The ID of the reservation.
+        service (IReservationService, optional): The injected reservation service dependency.
 
     Returns:
-        dict | None: The reservation details.
-    """
+        Reservation | None: The reservation details, or None if not found.
 
+    Raises:
+        HTTPException: If the reservation is not found.
+    """
     reservation = await service.get_by_id(reservation_id)
 
     if not reservation:
@@ -187,24 +223,24 @@ async def get_reservation_by_id(
     return reservation
 
 
-@router.get(
-    "/{reservation_id}/cost",
-    response_model=dict,
-    status_code=200,
-)
+@router.get("/{reservation_id}/cost", response_model=dict, status_code=200)
 @inject
 async def get_reservation_cost_by_id(
         reservation_id: int,
         service: IReservationService = Depends(Provide[Container.reservation_service]),
 ) -> dict:
-    """An endpoint for getting reservation by id.
+    """
+    Get the total cost of a reservation by ID.
 
     Args:
-        reservation_id (int): The id of the reservation.
-        service (IReservationService, optional): The injected service dependency.
+        reservation_id (int): The ID of the reservation.
+        service (IReservationService, optional): The injected reservation service dependency.
 
     Returns:
-        dict | None: The reservation details.
+        dict: A dictionary containing the total cost of the reservation.
+
+    Raises:
+        HTTPException: If the reservation is not found.
     """
     reservation = await service.get_by_id(reservation_id)
 
@@ -216,33 +252,33 @@ async def get_reservation_cost_by_id(
     return {"total_cost": cost}
 
 
-@router.put("/{reservation_id}", response_model=Reservation, status_code=201)
+@router.put("/{reservation_id}", response_model=Reservation, status_code=200)
 @inject
 async def update_reservation(
         reservation_id: int,
         updated_reservation: ReservationIn,
         service: IReservationService = Depends(Provide[Container.reservation_service]),
 ) -> dict:
-    """An endpoint for updating reservation data.
+    """
+    Update an existing reservation.
 
     Args:
-        reservation_id (int): The id of the reservation.
-        updated_reservation (ReservationIn): The updated reservation details.
-        service (IReservationtService, optional): The injected service dependency.
-
-    Raises:
-        HTTPException: 404 if reservation does not exist.
+        reservation_id (int): The ID of the reservation.
+        updated_reservation (ReservationIn): The updated reservation data.
+        service (IReservationService, optional): The injected reservation service dependency.
 
     Returns:
         dict: The updated reservation details.
-    """
 
+    Raises:
+        HTTPException: If the reservation does not exist.
+    """
     if await service.get_by_id(reservation_id=reservation_id):
         await service.update_reservation(
             reservation_id=reservation_id,
             data=updated_reservation,
         )
-        return {**updated_reservation, "id": reservation_id}
+        return {**updated_reservation.dict(), "id": reservation_id}
 
     raise HTTPException(status_code=404, detail="Reservation not found")
 
@@ -254,16 +290,16 @@ async def delete_reservation(
         reservation_service: IReservationService = Depends(Provide[Container.reservation_service]),
         reservation_room_service: IReservationRoomService = Depends(Provide[Container.reservation_room_service]),
 ) -> None:
-    """An endpoint for deleting reservations.
+    """
+    Delete a reservation by ID.
 
     Args:
-        reservation_id (int): The id of the reservation.
-        reservation_service (IReservationService, optional): The injected service dependency.
+        reservation_id (int): The ID of the reservation.
+        reservation_service (IReservationService, optional): The injected reservation service dependency.
 
     Raises:
-        HTTPException: 404 if reservation does not exist.
+        HTTPException: If the reservation is not found.
     """
-
     if not await reservation_service.get_by_id(reservation_id=reservation_id):
         raise HTTPException(status_code=404, detail="Reservation not found")
 

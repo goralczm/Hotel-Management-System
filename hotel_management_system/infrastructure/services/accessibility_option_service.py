@@ -1,6 +1,8 @@
-"""Module containing continent service implementation."""
+"""
+Module containing accessibility_option service implementation.
+"""
 
-from typing import Iterable
+from typing import List
 
 from hotel_management_system.core.domains.accessibility_option import AccessibilityOption, AccessibilityOptionIn
 from hotel_management_system.core.repositories.i_accessibility_option_repository import IAccessibilityOptionRepository
@@ -8,12 +10,15 @@ from hotel_management_system.core.services.i_accessibility_option_service import
 
 
 class AccessibilityOptionService(IAccessibilityOptionService):
-    """A class implementing the accessibility_option service."""
+    """
+    A class implementing the accessibility_option service.
+    """
 
     _repository: IAccessibilityOptionRepository
 
     def __init__(self, repository: IAccessibilityOptionRepository) -> None:
-        """The initializer of the `accessibility_option service`.
+        """
+        The initializer of the `accessibility_option service`.
 
         Args:
             repository (IAccessibilityOptionRepository): The reference to the repository.
@@ -21,70 +26,69 @@ class AccessibilityOptionService(IAccessibilityOptionService):
 
         self._repository = repository
 
-    async def get_all(self) -> Iterable[AccessibilityOption]:
-        """The method getting all accessibility_options from the repository.
+    async def get_all(self) -> List[AccessibilityOption]:
+        """
+        Retrieve all accessibility options from the data storage.
 
         Returns:
-            Iterable[accessibility_optionDTO]: All accessibility_options.
+            List[AccessibilityOption]: A collection of all accessibility options.
         """
 
         return await self._repository.get_all_accessibility_options()
 
-    async def get_by_id(self, accessibility_option_id: int) -> AccessibilityOption | None:
-        """The method getting accessibility_option by provided id.
+    async def add_accessibility_option(self, data: AccessibilityOptionIn) -> AccessibilityOption | None:
+        """
+        Add a new accessibility option to the data storage.
 
         Args:
-            accessibility_option_id (int): The id of the accessibility_option.
+            data (AccessibilityOptionIn): The data for the new accessibility option.
 
         Returns:
-            accessibility_optionDTO | None: The accessibility_option details.
+            AccessibilityOption | None: The newly added accessibility option, or None if the operation fails.
+        """
+
+        return await self._repository.add_accessibility_option(data)
+
+    async def get_by_id(self, accessibility_option_id: int) -> AccessibilityOption | None:
+        """
+        Retrieve an accessibility option by its ID.
+
+        Args:
+            accessibility_option_id (int): The ID of the accessibility option.
+
+        Returns:
+            AccessibilityOption | None: The accessibility option details, or None if not found.
         """
 
         return await self._repository.get_by_id(accessibility_option_id)
 
     async def get_by_name(self, accessibility_option_name: str) -> AccessibilityOption | None:
-        """The method getting accessibility_option by provided name.
+        """
+        Retrieve an accessibility option by its name.
 
         Args:
-            accessibility_option_name (str): The name of the accessibility_option.
+            accessibility_option_name (str): The name of the accessibility option.
 
         Returns:
-            accessibility_optionDTO | None: The accessibility_option details.
+            AccessibilityOption | None: The accessibility option details, or None if not found.
         """
 
         return await self._repository.get_by_name(accessibility_option_name)
-
-    async def add_accessibility_option(self, data: AccessibilityOptionIn) -> AccessibilityOption | None:
-        """The method adding new accessibility_option to the data storage.
-
-        Args:
-            data (accessibility_optionIn): The details of the new accessibility_option.
-
-        Returns:
-            accessibility_option | None: Full details of the newly added accessibility_option.
-        """
-
-        return await self._repository.add_accessibility_option(data)
-
-    async def setup_accessibility_options(self):
-        await self.add_accessibility_option(AccessibilityOptionIn.from_dict({"name": "Bezpierzowy"}))
-        await self.add_accessibility_option(AccessibilityOptionIn.from_dict({"name": "Pierwsze Piętro"}))
-        await self.add_accessibility_option(AccessibilityOptionIn.from_dict({"name": "Drugie Piętro"}))
-        await self.add_accessibility_option(AccessibilityOptionIn.from_dict({"name": "Niepalący"}))
 
     async def update_accessibility_option(
             self,
             accessibility_option_id: int,
             data: AccessibilityOptionIn,
     ) -> AccessibilityOption | None:
-        """The method updating accessibility_option data in the data storage.
+        """
+        Update an existing accessibility option in the data storage.
 
         Args:
-            accessibility_option_id (int): The id of the accessibility_option.
-            data (accessibility_optionIn): The details of the updated accessibility_option.
+            accessibility_option_id (int): The ID of the accessibility option to update.
+            data (AccessibilityOptionIn): The updated data for the accessibility option.
 
         Returns:
-            accessibility_option | None: The updated accessibility_option details.
+            AccessibilityOption | None: The updated accessibility option, or None if not found.
         """
 
         return await self._repository.update_accessibility_option(
@@ -93,13 +97,13 @@ class AccessibilityOptionService(IAccessibilityOptionService):
         )
 
     async def delete_accessibility_option(self, accessibility_option_id: int) -> bool:
-        """The method updating removing accessibility_option from the data storage.
+        """
+        Remove an accessibility option from the data storage.
 
         Args:
-            accessibility_option_id (int): The id of the accessibility_option.
+            accessibility_option_id (int): The ID of the accessibility option to delete.
 
         Returns:
-            bool: Success of the operation.
+            bool: True if the operation is successful, False otherwise.
         """
-
         return await self._repository.delete_accessibility_option(accessibility_option_id)

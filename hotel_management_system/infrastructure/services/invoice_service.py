@@ -1,4 +1,6 @@
-"""Module containing continent service implementation."""
+"""
+Module containing invoice service implementation.
+"""
 
 from typing import Iterable
 
@@ -9,7 +11,9 @@ from hotel_management_system.core.services.i_reservation_service import IReserva
 
 
 class InvoiceService(IInvoiceService):
-    """A class implementing the invoice service."""
+    """
+    A class implementing the invoice service.
+    """
 
     _invoice_repository: IInvoiceRepository
     _reservation_service: IReservationService
@@ -18,20 +22,23 @@ class InvoiceService(IInvoiceService):
                  invoice_repository: IInvoiceRepository,
                  reservation_service: IReservationService,
                  ) -> None:
-        """The initializer of the `invoice service`.
+        """
+        The initializer of the `invoice service`.
 
         Args:
-            repository (IinvoiceRepository): The reference to the repository.
+            invoice_repository (IInvoiceRepository): The reference to the invoice repository
+            reservation_service (IReservationService): The reference to the reservation service
         """
 
         self._invoice_repository = invoice_repository
         self._reservation_service = reservation_service
 
     async def get_all(self) -> Iterable[Invoice]:
-        """The method getting all invoices from the repository.
+        """
+        Retrieve all invoices from the data storage.
 
         Returns:
-            Iterable[invoiceDTO]: All invoices.
+            List[Invoice]: A list of all invoices.
         """
 
         all_invoices = await self._invoice_repository.get_all_invoices()
@@ -39,13 +46,14 @@ class InvoiceService(IInvoiceService):
         return [await self.parse_invoice(invoice) for invoice in all_invoices]
 
     async def get_by_id(self, invoice_id: int) -> Invoice | None:
-        """The method getting invoice by provided id.
+        """
+        Retrieve an invoice by its unique ID.
 
         Args:
-            invoice_id (int): The id of the invoice.
+            invoice_id (int): The ID of the invoice.
 
         Returns:
-            invoiceDTO | None: The invoice details.
+            Invoice | None: The details of the invoice if found, or None if not found.
         """
 
         return await self.parse_invoice(
@@ -53,13 +61,14 @@ class InvoiceService(IInvoiceService):
         )
 
     async def add_invoice(self, data: InvoiceIn) -> Invoice | None:
-        """The method adding new invoice to the data storage.
+        """
+        Add a new invoice to the data storage.
 
         Args:
-            data (invoiceIn): The details of the new invoice.
+            data (InvoiceIn): The details of the new invoice.
 
         Returns:
-            invoice | None: Full details of the newly added invoice.
+            Invoice | None: The newly added invoice, or None if the operation fails.
         """
 
         return await self.parse_invoice(
@@ -71,14 +80,15 @@ class InvoiceService(IInvoiceService):
             invoice_id: int,
             data: InvoiceIn,
     ) -> Invoice | None:
-        """The method updating invoice data in the data storage.
+        """
+        Update an existing invoice's data in the data storage.
 
         Args:
-            invoice_id (int): The id of the invoice.
-            data (invoiceIn): The details of the updated invoice.
+            invoice_id (int): The ID of the invoice to update.
+            data (InvoiceIn): The updated details for the invoice.
 
         Returns:
-            invoice | None: The updated invoice details.
+            Invoice | None: The updated invoice details, or None if the invoice is not found.
         """
 
         return await self.parse_invoice(
@@ -89,13 +99,14 @@ class InvoiceService(IInvoiceService):
         )
 
     async def delete_invoice(self, invoice_id: int) -> bool:
-        """The method updating removing invoice from the data storage.
+        """
+        Remove an invoice from the data storage.
 
         Args:
-            invoice_id (int): The id of the invoice.
+            invoice_id (int): The ID of the invoice to remove.
 
         Returns:
-            bool: Success of the operation.
+            bool: True if the operation is successful, False otherwise.
         """
 
         return await self._invoice_repository.delete_invoice(invoice_id)

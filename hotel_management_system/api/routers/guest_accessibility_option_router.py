@@ -1,4 +1,4 @@
-"""A module containing continent endpoints."""
+"""A module containing guest accessibility option management endpoints."""
 
 from typing import Iterable
 from dependency_injector.wiring import inject, Provide
@@ -21,18 +21,21 @@ async def create_guest_accessibility_option(
         accessibility_option_service: IAccessibilityOptionService = Depends(Provide[Container.accessibility_option_service]),
         guest_accessibility_option_service: IGuestAccessibilityOptionService = Depends(Provide[Container.guest_accessibility_option_service]),
 ) -> dict:
-    """An endpoint for adding new guest_accessibility_option.
+    """
+    Create a new guest accessibility option.
 
     Args:
-        guest_accessibility_option (GuestAccessibilityOptionIn): The guest_accessibility_option data.
-        guest_service (IGuestService, optional): The injected guest service dependency
-        accessibility_option_service (IAccessibilityOptionService, optional): The injected accessibility option service dependency
-        guest_accessibility_option_service (IGuestAccessibilityOptionService, optional): The injected service dependency.
+        guest_accessibility_option (GuestAccessibilityOptionIn): The data for the new guest accessibility option.
+        guest_service (IGuestService, optional): The service for validating guest data.
+        accessibility_option_service (IAccessibilityOptionService, optional): The service for validating accessibility options.
+        guest_accessibility_option_service (IGuestAccessibilityOptionService, optional): The service for managing guest accessibility options.
 
     Returns:
-        dict: The new guest_accessibility_option attributes.
-    """
+        dict: The created guest accessibility option's details.
 
+    Raises:
+        HTTPException: 404 if the guest or accessibility option does not exist.
+    """
     if not await guest_service.get_by_id(guest_accessibility_option.guest_id):
         raise HTTPException(status_code=404, detail="Guest id not found")
 
@@ -40,7 +43,6 @@ async def create_guest_accessibility_option(
         raise HTTPException(status_code=404, detail="Accessibility option id not found")
 
     new_guest_accessibility_option = await guest_accessibility_option_service.add_guest_accessibility_option(guest_accessibility_option)
-
     return new_guest_accessibility_option.model_dump() if new_guest_accessibility_option else {}
 
 
@@ -49,17 +51,16 @@ async def create_guest_accessibility_option(
 async def get_all_guest_accessibility_options(
         service: IGuestAccessibilityOptionService = Depends(Provide[Container.guest_accessibility_option_service]),
 ) -> Iterable:
-    """An endpoint for getting all guest_accessibility_options.
+    """
+    Retrieve all guest accessibility options.
 
     Args:
-        service (IGuestAccessibilityOptionService, optional): The injected service dependency.
+        service (IGuestAccessibilityOptionService, optional): The service for fetching all guest accessibility options.
 
     Returns:
-        Iterable: The guest_accessibility_option attributes collection.
+        Iterable: A collection of all guest accessibility options.
     """
-
     guest_accessibility_options = await service.get_all()
-
     return guest_accessibility_options
 
 
@@ -74,17 +75,20 @@ async def get_guest_accessibility_option_by_id(
         accessibility_option_id: int,
         service: IGuestAccessibilityOptionService = Depends(Provide[Container.guest_accessibility_option_service]),
 ) -> dict | None:
-    """An endpoint for getting guest_accessibility_option by id.
+    """
+    Retrieve a guest accessibility option by guest ID and accessibility option ID.
 
     Args:
-        guest_id (int): The id of the guest
-        accessibility_option_id (int): The id of the accessibility_option.
-        service (IGuestAccessibilityOptionService, optional): The injected service dependency.
+        guest_id (int): The ID of the guest.
+        accessibility_option_id (int): The ID of the accessibility option.
+        service (IGuestAccessibilityOptionService, optional): The service for fetching guest accessibility options.
 
     Returns:
-        dict | None: The guest_accessibility_option details.
-    """
+        dict | None: The guest accessibility option details if found, else None.
 
+    Raises:
+        HTTPException: 404 if the guest accessibility option is not found.
+    """
     if guest_accessibility_option := await service.get_by_id(guest_id, accessibility_option_id):
         return guest_accessibility_option.model_dump()
 
@@ -99,21 +103,21 @@ async def update_guest_accessibility_option(
         updated_guest_accessibility_option: GuestAccessibilityOptionIn,
         service: IGuestAccessibilityOptionService = Depends(Provide[Container.guest_accessibility_option_service]),
 ) -> dict:
-    """An endpoint for updating guest_accessibility_option data.
+    """
+    Update a guest accessibility option.
 
     Args:
-        guest_id (int): The id of the guest
-        accessibility_option_id (int): The id of the accessibility_option.
-        updated_guest_accessibility_option (GuestAccessibilityOptionIn): The updated guest_accessibility_option details.
-        service (IGuestAccessibilityOptionService, optional): The injected service dependency.
+        guest_id (int): The ID of the guest.
+        accessibility_option_id (int): The ID of the accessibility option.
+        updated_guest_accessibility_option (GuestAccessibilityOptionIn): The updated data for the guest accessibility option.
+        service (IGuestAccessibilityOptionService, optional): The service for updating guest accessibility options.
 
     Raises:
-        HTTPException: 404 if guest_accessibility_option does not exist.
+        HTTPException: 404 if the guest accessibility option does not exist.
 
     Returns:
-        dict: The updated guest_accessibility_option details.
+        dict: The updated guest accessibility option details.
     """
-
     if await service.get_by_id(guest_id=guest_id, accessibility_option_id=accessibility_option_id):
         await service.update_guest_accessibility_option(
             guest_id=guest_id,
@@ -132,20 +136,19 @@ async def delete_guest_accessibility_option(
         accessibility_option_id: int,
         service: IGuestAccessibilityOptionService = Depends(Provide[Container.guest_accessibility_option_service]),
 ) -> None:
-    """An endpoint for deleting guest_accessibility_options.
+    """
+    Delete a guest accessibility option.
 
     Args:
-        guest_id (int): The id of the guest
-        accessibility_option_id (int): The id of the accessibility_option.
-        service (IcontinentService, optional): The injected service dependency.
+        guest_id (int): The ID of the guest.
+        accessibility_option_id (int): The ID of the accessibility option.
+        service (IGuestAccessibilityOptionService, optional): The service for deleting guest accessibility options.
 
     Raises:
-        HTTPException: 404 if guest_accessibility_option does not exist.
+        HTTPException: 404 if the guest accessibility option does not exist.
     """
-
     if await service.get_by_id(guest_id=guest_id, accessibility_option_id=accessibility_option_id):
         await service.delete_guest_accessibility_option(guest_id, accessibility_option_id)
-
         return
 
     raise HTTPException(status_code=404, detail="GuestAccessibilityOption not found")

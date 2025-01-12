@@ -1,4 +1,6 @@
-"""A module containing continent endpoints."""
+"""
+A module containing room endpoints.
+"""
 
 from typing import Iterable
 from dependency_injector.wiring import inject, Provide
@@ -17,18 +19,20 @@ async def create_room(
         room: RoomIn,
         service: IRoomService = Depends(Provide[Container.room_service]),
 ) -> dict:
-    """An endpoint for adding new room.
+    """
+    Create a new room in the system.
 
     Args:
-        room (RoomIn): The room data.
-        service (IRoomService, optional): The injected service dependency.
+        room (RoomIn): The data for the new room.
+        service (IRoomService): The injected room service dependency.
 
     Returns:
-        dict: The new room attributes.
+        dict: The newly created room attributes.
+
+    Raises:
+        HTTPException: If the room cannot be created.
     """
-
     new_room = await service.add_room(room)
-
     return new_room.model_dump() if new_room else {}
 
 
@@ -37,17 +41,16 @@ async def create_room(
 async def get_all_rooms(
         service: IRoomService = Depends(Provide[Container.room_service]),
 ) -> Iterable:
-    """An endpoint for getting all rooms.
+    """
+    Retrieve all rooms in the system.
 
     Args:
-        service (IRoomService, optional): The injected service dependency.
+        service (IRoomService): The injected room service dependency.
 
     Returns:
-        Iterable: The room attributes collection.
+        Iterable: A collection of rooms.
     """
-
     rooms = await service.get_all()
-
     return rooms
 
 
@@ -61,50 +64,49 @@ async def get_room_by_id(
         room_id: int,
         service: IRoomService = Depends(Provide[Container.room_service]),
 ) -> dict | None:
-    """An endpoint for getting room by id.
+    """
+    Retrieve a room by its ID.
 
     Args:
-        room_id (int): The id of the room.
-        service (IRoomService, optional): The injected service dependency.
+        room_id (int): The ID of the room.
+        service (IRoomService): The injected room service dependency.
 
     Returns:
-        dict | None: The room details.
+        dict | None: The room details or None if not found.
+
+    Raises:
+        HTTPException: If the room is not found.
     """
-
-    if room := await service.get_by_id(room_id):
+    room = await service.get_by_id(room_id)
+    if room:
         return room.model_dump()
-
     raise HTTPException(status_code=404, detail="Room not found")
 
 
-@router.put("/{room_id}", response_model=Room, status_code=201)
+@router.put("/{room_id}", response_model=Room, status_code=200)
 @inject
 async def update_room(
         room_id: int,
         updated_room: RoomIn,
         service: IRoomService = Depends(Provide[Container.room_service]),
 ) -> dict:
-    """An endpoint for updating room data.
+    """
+    Update a room's data.
 
     Args:
-        room_id (int): The id of the room.
+        room_id (int): The ID of the room.
         updated_room (RoomIn): The updated room details.
-        service (IRoomtService, optional): The injected service dependency.
-
-    Raises:
-        HTTPException: 404 if room does not exist.
+        service (IRoomService): The injected room service dependency.
 
     Returns:
         dict: The updated room details.
+
+    Raises:
+        HTTPException: If the room is not found.
     """
-
-    if await service.get_by_id(room_id=room_id):
-        await service.update_room(
-            room_id=room_id,
-            data=updated_room,
-        )
+    if await service.get_by_id(room_id):
+        await service.update_room(room_id=room_id, data=updated_room)
         return {**updated_room.model_dump(), "id": room_id}
-
     raise HTTPException(status_code=404, detail="Room not found")
 
 
@@ -114,19 +116,17 @@ async def delete_room(
         room_id: int,
         service: IRoomService = Depends(Provide[Container.room_service]),
 ) -> None:
-    """An endpoint for deleting rooms.
+    """
+    Delete a room from the system.
 
     Args:
-        room_id (int): The id of the room.
-        service (IcontinentService, optional): The injected service dependency.
+        room_id (int): The ID of the room to delete.
+        service (IRoomService): The injected room service dependency.
 
     Raises:
-        HTTPException: 404 if room does not exist.
+        HTTPException: If the room is not found.
     """
-
-    if await service.get_by_id(room_id=room_id):
+    if await service.get_by_id(room_id):
         await service.delete_room(room_id)
-
         return
-
     raise HTTPException(status_code=404, detail="Room not found")

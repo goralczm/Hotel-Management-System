@@ -1,6 +1,8 @@
-"""A module containing continent endpoints."""
+"""
+Module containing endpoints for managing accessibility options.
+"""
 
-from typing import Iterable
+from typing import List
 from dependency_injector.wiring import inject, Provide
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -17,37 +19,35 @@ async def create_accessibility_option(
         accessibility_option: AccessibilityOptionIn,
         service: IAccessibilityOptionService = Depends(Provide[Container.accessibility_option_service]),
 ) -> dict:
-    """An endpoint for adding new accessibility_option.
+    """
+    Create a new accessibility option.
 
     Args:
-        accessibility_option (AccessibilityOptionIn): The accessibility_option data.
-        service (IAccessibilityOptionService, optional): The injected service dependency.
+        accessibility_option (AccessibilityOptionIn): The details of the accessibility option to be added.
+        service (IAccessibilityOptionService, optional): The service used to add the accessibility option.
 
     Returns:
-        dict: The new accessibility_option attributes.
+        dict: The newly created accessibility option's attributes.
     """
-
     new_accessibility_option = await service.add_accessibility_option(accessibility_option)
-
     return new_accessibility_option.model_dump() if new_accessibility_option else {}
 
 
-@router.get("/all", response_model=Iterable[AccessibilityOption], status_code=200)
+@router.get("/all", response_model=List[AccessibilityOption], status_code=200)
 @inject
 async def get_all_accessibility_options(
         service: IAccessibilityOptionService = Depends(Provide[Container.accessibility_option_service]),
-) -> Iterable:
-    """An endpoint for getting all accessibility_options.
+) -> List:
+    """
+    Retrieve all accessibility options.
 
     Args:
-        service (IAccessibilityOptionService, optional): The injected service dependency.
+        service (IAccessibilityOptionService, optional): The service used to fetch all accessibility options.
 
     Returns:
-        Iterable: The accessibility_option attributes collection.
+        List: A list of all accessibility options.
     """
-
     accessibility_options = await service.get_all()
-
     return accessibility_options
 
 
@@ -61,16 +61,18 @@ async def get_accessibility_option_by_id(
         accessibility_option_id: int,
         service: IAccessibilityOptionService = Depends(Provide[Container.accessibility_option_service]),
 ) -> dict | None:
-    """An endpoint for getting accessibility_option by id.
+    """
+    Retrieve an accessibility option by its ID.
 
     Args:
-        accessibility_option_id (int): The id of the accessibility_option.
-        service (IAccessibilityOptionService, optional): The injected service dependency.
+        accessibility_option_id (int): The ID of the accessibility option.
+        service (IAccessibilityOptionService, optional): The service used to fetch the accessibility option by ID.
 
     Returns:
-        dict | None: The accessibility_option details.
+        dict | None: The details of the accessibility option if found, else None.
+    Raises:
+        HTTPException: 404 if the accessibility option with the given ID does not exist.
     """
-
     if accessibility_option := await service.get_by_id(accessibility_option_id):
         return accessibility_option.model_dump()
 
@@ -84,20 +86,20 @@ async def update_accessibility_option(
         updated_accessibility_option: AccessibilityOptionIn,
         service: IAccessibilityOptionService = Depends(Provide[Container.accessibility_option_service]),
 ) -> dict:
-    """An endpoint for updating accessibility_option data.
+    """
+    Update an existing accessibility option.
 
     Args:
-        accessibility_option_id (int): The id of the accessibility_option.
-        updated_accessibility_option (AccessibilityOptionIn): The updated accessibility_option details.
-        service (IAccessibilityOptiontService, optional): The injected service dependency.
+        accessibility_option_id (int): The ID of the accessibility option to be updated.
+        updated_accessibility_option (AccessibilityOptionIn): The updated details for the accessibility option.
+        service (IAccessibilityOptionService, optional): The service used to update the accessibility option.
 
     Raises:
-        HTTPException: 404 if accessibility_option does not exist.
+        HTTPException: 404 if the accessibility option with the given ID does not exist.
 
     Returns:
-        dict: The updated accessibility_option details.
+        dict: The updated accessibility option's details.
     """
-
     if await service.get_by_id(accessibility_option_id=accessibility_option_id):
         await service.update_accessibility_option(
             accessibility_option_id=accessibility_option_id,
@@ -114,19 +116,18 @@ async def delete_accessibility_option(
         accessibility_option_id: int,
         service: IAccessibilityOptionService = Depends(Provide[Container.accessibility_option_service]),
 ) -> None:
-    """An endpoint for deleting accessibility_options.
+    """
+    Delete an accessibility option.
 
     Args:
-        accessibility_option_id (int): The id of the accessibility_option.
-        service (IcontinentService, optional): The injected service dependency.
+        accessibility_option_id (int): The ID of the accessibility option to be deleted.
+        service (IAccessibilityOptionService, optional): The service used to delete the accessibility option.
 
     Raises:
-        HTTPException: 404 if accessibility_option does not exist.
+        HTTPException: 404 if the accessibility option with the given ID does not exist.
     """
-
     if await service.get_by_id(accessibility_option_id=accessibility_option_id):
         await service.delete_accessibility_option(accessibility_option_id)
-
         return
 
     raise HTTPException(status_code=404, detail="AccessibilityOption not found")

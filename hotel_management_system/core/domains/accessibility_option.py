@@ -3,38 +3,32 @@ from pydantic import BaseModel, ConfigDict
 
 
 class AccessibilityOptionIn(BaseModel):
-    """Model representing guest's DTO attributes."""
+    """Model representing the DTO for creating or updating an accessibility option."""
     name: str
-
-    @classmethod
-    def from_dict(cls, data: dict) -> "AccessibilityOptionIn":
-        return cls(
-            name=data.get("name")
-        )
 
 
 class AccessibilityOption(AccessibilityOptionIn):
-    """Model representing guest's attributes in the database."""
+    """Model representing an accessibility option as stored in the database."""
     id: int
 
     model_config = ConfigDict(
         from_attributes=True,
-        extra="ignore"
+        extra="ignore",
     )
 
     @classmethod
     def from_record(cls, record: Record) -> "AccessibilityOption":
-        """A method for preparing DTO instance based on DB record.
+        """Convert a DB record into an AccessibilityOption instance.
 
         Args:
-            record (Record): The DB record.
+            record (Record): A record fetched from the database.
 
         Returns:
-            GuestDTO: The final DTO instance.
+            AccessibilityOption: The model instance populated with the data from the DB record.
         """
         record_dict = dict(record)
 
         return cls(
-            id=record_dict.get("id"),  # type: ignore
+            id=record_dict.get("id"),
             name=record_dict.get("name"),
         )

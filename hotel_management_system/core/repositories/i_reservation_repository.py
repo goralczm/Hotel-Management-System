@@ -1,4 +1,6 @@
-"""Module containing reservation repository abstractions."""
+"""
+Module for managing reservation repository abstractions.
+"""
 
 from abc import ABC, abstractmethod
 from datetime import date
@@ -8,84 +10,90 @@ from hotel_management_system.core.domains.reservation import ReservationIn, Rese
 
 
 class IReservationRepository(ABC):
-    """An abstract class representing protocol of continent repository."""
+    """
+    Abstract base class defining the interface for a reservation repository.
+    """
 
     @abstractmethod
     async def get_all_reservations(self) -> List[Reservation]:
-        """The abstract getting all reservations from the data storage.
+        """
+        Retrieve all reservations from the data storage.
 
         Returns:
-            List[Reservation]: Reservations in the data storage.
+            List[Reservation]: A list of all reservations.
         """
 
     @abstractmethod
     async def get_by_id(self, reservation_id: int) -> Reservation | None:
-        """The method getting reservation by provided id.
+        """
+        Retrieve a reservation by its unique ID.
 
         Args:
-            reservation_id (int): The id of the reservation.
+            reservation_id (int): The ID of the reservation.
 
         Returns:
-            Reservation | None: The reservation details.
+            Reservation | None: The details of the reservation if found, or None if not found.
         """
 
     @abstractmethod
     async def get_between_dates(self, start_date: date, end_date: date) -> List[Reservation]:
-        """The method getting reservations made between provided start_date and end_date
+        """
+        Retrieve reservations made between the provided start and end dates.
 
         Args:
-            start_date (date): The start date
-            end_date (date): The end date
+            start_date (date): The start date of the range.
+            end_date (date): The end date of the range.
 
         Returns:
-            List[Reservation]: The reservations made between the dates
+            List[Reservation]: A list of reservations made within the date range.
         """
 
     @abstractmethod
     async def get_by_month(self, year: int, month_number: int) -> List[Reservation]:
-        """The method getting reservations made in the provided month
+        """
+        Retrieve reservations made during the specified month.
 
         Args:
-            month_number (int): The month number
+            year (int): The year of the reservations.
+            month_number (int): The month number (1 for January, 12 for December).
 
         Returns:
-            List[Reservation]: The reservations made in provided month
+            List[Reservation]: A list of reservations made in the specified month.
         """
 
     @abstractmethod
     async def add_reservation(self, data: ReservationIn) -> Reservation | None:
-        """The abstract adding new reservation to the data storage.
+        """
+        Add a new reservation to the data storage.
 
         Args:
             data (ReservationIn): The details of the new reservation.
 
         Returns:
-            Reservation | None: The newly added reservation.
+            Reservation | None: The newly added reservation, or None if the operation fails.
         """
 
     @abstractmethod
-    async def update_reservation(
-            self,
-            reservation_id: int,
-            data: ReservationIn,
-    ) -> Reservation | None:
-        """The abstract updating reservation data in the data storage.
+    async def update_reservation(self, reservation_id: int, data: ReservationIn) -> Reservation | None:
+        """
+        Update the details of an existing reservation in the data storage.
 
         Args:
-            reservation_id (int): The id of the reservation.
-            data (ReservationIn): The details of the updated reservation.
+            reservation_id (int): The ID of the reservation to update.
+            data (ReservationIn): The updated details for the reservation.
 
         Returns:
-            Reservation | None: The updated reservation details.
+            Reservation | None: The updated reservation details, or None if the reservation is not found.
         """
 
     @abstractmethod
     async def delete_reservation(self, reservation_id: int) -> bool:
-        """The abstract updating removing reservation from the data storage.
+        """
+        Remove a reservation from the data storage.
 
         Args:
-            reservation_id (int): The id of the reservation.
+            reservation_id (int): The ID of the reservation to remove.
 
         Returns:
-            bool: Success of the operation.
+            bool: True if the operation is successful, False otherwise.
         """

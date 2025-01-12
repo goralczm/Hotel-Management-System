@@ -1,14 +1,11 @@
-"""Module containing airport-related domain models"""
 import datetime
-
 from asyncpg import Record
 from pydantic import BaseModel, ConfigDict
-
 from hotel_management_system.core.domains.reservation import Reservation
 
 
 class InvoiceIn(BaseModel):
-    """Model representing pricing_detail's DTO attributes."""
+    """Model representing the input DTO for creating or updating an invoice."""
     date_of_issue: datetime.date
     first_name: str
     last_name: str
@@ -21,35 +18,37 @@ class InvoiceIn(BaseModel):
     company_phone: str = "+48 221 234 567"
     company_email: str = "recepcja@hotelfelix.pl"
 
+
 class Invoice(InvoiceIn):
-    """Model representing pricing_detail's attributes in the database."""
+    """Model representing an invoice's attributes in the database."""
     id: int
-    total_sum: float = 0
+    total_sum: float = 0.0
     reservation: Reservation = None
 
     model_config = ConfigDict(
         from_attributes=True,
-        extra="ignore"
+        extra="ignore",
     )
 
     @classmethod
     def from_record(cls, record: Record) -> "Invoice":
-        """A method for preparing DTO instance based on DB record.
+        """Convert a DB record into an Invoice instance.
 
         Args:
-            record (Record): The DB record.
+            record (Record): A record fetched from the database.
 
         Returns:
-            InvoiceDTO: The final DTO instance.
+            Invoice: The model instance populated with the data from the DB record.
         """
         record_dict = dict(record)
 
         return cls(
-            id=record_dict.get("id"),  # type: ignore
+            id=record_dict.get("id"),
             date_of_issue=record_dict.get("date_of_issue"),
             first_name=record_dict.get("first_name"),
             last_name=record_dict.get("last_name"),
             address=record_dict.get("address"),
             nip=record_dict.get("nip"),
             reservation_id=record_dict.get("reservation_id"),
+            total_sum=record_dict.get("total_sum", 0.0),
         )

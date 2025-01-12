@@ -1,4 +1,6 @@
-"""Module containing pricing_detail repository implementation."""
+"""
+Module containing pricing_detail repository implementation.
+"""
 
 from typing import Any, Iterable
 
@@ -14,13 +16,16 @@ from hotel_management_system.db import (
 
 
 class PricingDetailRepository(IPricingDetailRepository):
-    """A class representing continent DB repository."""
+    """
+    A class representing pricing_detail DB repository.
+    """
 
     async def get_all_pricing_details(self) -> Iterable[Any]:
-        """The method getting all pricing_details from the data storage.
+        """
+        Retrieve all pricing details from the data storage.
 
         Returns:
-            Iterable[Any]: pricing_details in the data storage.
+            List[PricingDetail]: A list of all pricing details.
         """
 
         query = (
@@ -32,26 +37,29 @@ class PricingDetailRepository(IPricingDetailRepository):
         return [PricingDetail.from_record(pricing_detail) for pricing_detail in pricing_details]
 
     async def get_by_id(self, pricing_detail_id: int) -> Any | None:
-        """The method getting pricing_detail by provided id.
+        """
+        Retrieve a pricing detail by its unique ID.
 
         Args:
-            pricing_detail_id (int): The id of the pricing_detail.
+            pricing_detail_id (int): The ID of the pricing detail.
 
         Returns:
-            Any | None: The pricing_detail details.
+            PricingDetail | None: The details of the pricing detail if found, or None if not found.
         """
+
         pricing_detail = await self._get_by_id(pricing_detail_id)
 
         return PricingDetail.from_record(pricing_detail) if pricing_detail else None
 
     async def get_by_name(self, pricing_detail_name: str) -> PricingDetail | None:
-        """The method getting accessibility_option by provided name.
+        """
+        Retrieve a pricing detail by its name.
 
         Args:
-            pricing_detail_name (str): The name of the accessibility_option.
+            pricing_detail_name (str): The name of the pricing detail.
 
         Returns:
-            accessibility_optionDTO | None: The accessibility_option details.
+            PricingDetail | None: The pricing detail details if found, or None if not found.
         """
 
         query = (
@@ -62,16 +70,14 @@ class PricingDetailRepository(IPricingDetailRepository):
         return await database.fetch_one(query)
 
     async def add_pricing_detail(self, data: PricingDetailIn) -> Any | None:
-        """The method adding new pricing_detail to the data storage.
+        """
+        Add a new pricing detail to the data storage.
 
         Args:
-            data (pricing_detailIn): The details of the new pricing_detail.
+            data (PricingDetailIn): The details of the new pricing detail.
 
         Returns:
-            pricing_detail: Full details of the newly added pricing_detail.
-
-        Returns:
-            Any | None: The newly added pricing_detail.
+            PricingDetail | None: The newly added pricing detail, or None if the operation fails.
         """
 
         query = pricing_details_table.insert().values(**data.model_dump())
@@ -85,14 +91,15 @@ class PricingDetailRepository(IPricingDetailRepository):
             pricing_detail_id: int,
             data: PricingDetailIn,
     ) -> Any | None:
-        """The method updating pricing_detail data in the data storage.
+        """
+        Update an existing pricing detail's data in the data storage.
 
         Args:
-            pricing_detail_id (int): The id of the pricing_detail.
-            data (pricing_detailIn): The details of the updated pricing_detail.
+            pricing_detail_id (int): The ID of the pricing detail to update.
+            data (PricingDetailIn): The updated details for the pricing detail.
 
         Returns:
-            Any | None: The updated pricing_detail details.
+            PricingDetail | None: The updated pricing detail details, or None if the pricing detail is not found.
         """
 
         if self._get_by_id(pricing_detail_id):
@@ -110,13 +117,14 @@ class PricingDetailRepository(IPricingDetailRepository):
         return None
 
     async def delete_pricing_detail(self, pricing_detail_id: int) -> bool:
-        """The method updating removing pricing_detail from the data storage.
+        """
+        Remove a pricing detail from the data storage.
 
         Args:
-            pricing_detail_id (int): The id of the pricing_detail.
+            pricing_detail_id (int): The ID of the pricing detail to remove.
 
         Returns:
-            bool: Success of the operation.
+            bool: True if the operation is successful, False otherwise.
         """
 
         if self._get_by_id(pricing_detail_id):

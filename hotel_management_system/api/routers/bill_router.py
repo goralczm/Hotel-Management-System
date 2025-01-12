@@ -1,4 +1,4 @@
-"""A module containing continent endpoints."""
+"""A module containing bill management endpoints."""
 
 from typing import Iterable
 from dependency_injector.wiring import inject, Provide
@@ -23,18 +23,22 @@ async def create_bill(
         bill_service: IBillService = Depends(Provide[Container.bill_service]),
         reservation_service: IReservationService = Depends(Provide[Container.reservation_service]),
 ) -> dict:
-    """An endpoint for adding new bill.
+    """
+    Create a new bill for a reservation.
 
     Args:
-        bill (BillIn): The bill data.
-        room_service (IRoomService, optional): The injected room service dependency
-        pricing_detail_service (IPricingDetailService, optional): The injected pricing_detail service dependency
-        bill_service (IBillService, optional): The injected service dependency.
+        bill (BillIn): The bill details to be created.
+        room_service (IRoomService, optional): Service for room data validation.
+        pricing_detail_service (IPricingDetailService, optional): Service for pricing detail validation.
+        bill_service (IBillService, optional): Service for creating a new bill.
+        reservation_service (IReservationService, optional): Service for reservation validation.
 
     Returns:
-        dict: The new bill attributes.
-    """
+        dict: The created bill's details.
 
+    Raises:
+        HTTPException: 404 if any related data (room, pricing detail, or reservation) is not found.
+    """
     if not await room_service.get_by_id(bill.room_id):
         raise HTTPException(status_code=404, detail="Room id not found")
 
@@ -45,7 +49,6 @@ async def create_bill(
         raise HTTPException(status_code=404, detail="Reservation id not found")
 
     new_bill = await bill_service.add_bill(bill)
-
     return new_bill.model_dump() if new_bill else {}
 
 
@@ -54,17 +57,16 @@ async def create_bill(
 async def get_all_bills(
         service: IBillService = Depends(Provide[Container.bill_service]),
 ) -> Iterable:
-    """An endpoint for getting all bills.
+    """
+    Retrieve all bills.
 
     Args:
-        service (IBillService, optional): The injected service dependency.
+        service (IBillService, optional): The service to fetch all bills.
 
     Returns:
-        Iterable: The bill attributes collection.
+        Iterable: A collection of all bills.
     """
-
     bills = await service.get_all()
-
     return bills
 
 
@@ -79,17 +81,20 @@ async def get_bill_by_id(
         pricing_detail_id: int,
         service: IBillService = Depends(Provide[Container.bill_service]),
 ) -> dict | None:
-    """An endpoint for getting bill by id.
+    """
+    Retrieve a bill by room ID and pricing detail ID.
 
     Args:
-        room_id (int): The id of the room
-        pricing_detail_id (int): The id of the accessibility_option.
-        service (IBillService, optional): The injected service dependency.
+        room_id (int): The room ID associated with the bill.
+        pricing_detail_id (int): The pricing detail ID associated with the bill.
+        service (IBillService, optional): The service to fetch the bill.
 
     Returns:
-        dict | None: The bill details.
-    """
+        dict | None: The bill details if found, else None.
 
+    Raises:
+        HTTPException: 404 if the bill is not found.
+    """
     if bill := await service.get_by_id(room_id, pricing_detail_id):
         return bill.model_dump()
 
@@ -104,21 +109,21 @@ async def update_bill(
         updated_bill: BillIn,
         service: IBillService = Depends(Provide[Container.bill_service]),
 ) -> dict:
-    """An endpoint for updating bill data.
+    """
+    Update an existing bill's details.
 
     Args:
-        room_id (int): The id of the room
-        pricing_detail_id (int): The id of the accessibility_option.
+        room_id (int): The room ID associated with the bill.
+        pricing_detail_id (int): The pricing detail ID associated with the bill.
         updated_bill (BillIn): The updated bill details.
-        service (IBillService, optional): The injected service dependency.
+        service (IBillService, optional): The service to update the bill.
 
     Raises:
-        HTTPException: 404 if bill does not exist.
+        HTTPException: 404 if the bill is not found.
 
     Returns:
-        dict: The updated bill details.
+        dict: The updated bill's details.
     """
-
     if await service.get_by_id(room_id=room_id, pricing_detail_id=pricing_detail_id):
         await service.update_bill(
             room_id=room_id,
@@ -137,20 +142,19 @@ async def delete_bill(
         pricing_detail_id: int,
         service: IBillService = Depends(Provide[Container.bill_service]),
 ) -> None:
-    """An endpoint for deleting bills.
+    """
+    Delete a bill by room ID and pricing detail ID.
 
     Args:
-        room_id (int): The id of the room
-        pricing_detail_id (int): The id of the accessibility_option.
-        service (IcontinentService, optional): The injected service dependency.
+        room_id (int): The room ID associated with the bill.
+        pricing_detail_id (int): The pricing detail ID associated with the bill.
+        service (IBillService, optional): The service to delete the bill.
 
     Raises:
-        HTTPException: 404 if bill does not exist.
+        HTTPException: 404 if the bill is not found.
     """
-
     if await service.get_by_id(room_id=room_id, pricing_detail_id=pricing_detail_id):
         await service.delete_bill(room_id, pricing_detail_id)
-
         return
 
     raise HTTPException(status_code=404, detail="Bill not found")
