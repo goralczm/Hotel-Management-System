@@ -296,10 +296,11 @@ async def delete_reservation(
     Args:
         reservation_id (int): The ID of the reservation.
         reservation_service (IReservationService, optional): The injected reservation service dependency.
-
+        reservation_room_service (IReservationRoomService, optional): The injected reservation_room service dependency.
     Raises:
         HTTPException: If the reservation is not found.
     """
+
     if not await reservation_service.get_by_id(reservation_id=reservation_id):
         raise HTTPException(status_code=404, detail="Reservation not found")
 

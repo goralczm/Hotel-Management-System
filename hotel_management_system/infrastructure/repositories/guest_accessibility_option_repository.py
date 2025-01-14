@@ -85,10 +85,10 @@ class GuestAccessibilityOptionRepository(IGuestAccessibilityOptionRepository):
             select(guests_accessibility_options_table).
             where(guests_accessibility_options_table.c.accessibility_option_id == accessibility_option_id)
         )
+
         guest_accessibility_options = await database.fetch_all(query)
 
         return [GuestAccessibilityOption.from_record(guest_accessibility_option) for guest_accessibility_option in guest_accessibility_options]
-
 
     async def add_guest_accessibility_option(self, data: GuestAccessibilityOptionIn) -> GuestAccessibilityOption | None:
         """

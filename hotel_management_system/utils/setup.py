@@ -86,6 +86,8 @@ async def main(
             )
         )
 
+    return
+
     sample_guests = []
     with open(os.path.join(os.path.dirname(__file__), 'random_contacts.csv'), 'r') as random_contacts:
         random_contacts = random_contacts.readlines()

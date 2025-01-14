@@ -1,11 +1,13 @@
 """A module containing guest management endpoints."""
 
-from typing import Iterable, List
+from typing import List
 from dependency_injector.wiring import inject, Provide
 from fastapi import APIRouter, Depends, HTTPException
 
 from hotel_management_system.container import Container
 from hotel_management_system.core.domains.guest import Guest, GuestIn
+from hotel_management_system.core.domains.guest_accessibility_option import GuestAccessibilityOptionIn
+from hotel_management_system.core.services.i_accessibility_option_service import IAccessibilityOptionService
 from hotel_management_system.core.services.i_guest_accessibility_option_service import IGuestAccessibilityOptionService
 from hotel_management_system.core.services.i_guest_service import IGuestService
 
@@ -16,30 +18,59 @@ router = APIRouter()
 @inject
 async def create_guest(
         guest: GuestIn,
-        guest_service: IGuestService = Depends(Provide[Container.guest_service])
+        accessibility_option_ids: List[int] = [-1],
+        guest_service: IGuestService = Depends(Provide[Container.guest_service]),
+        accessibility_option_service: IAccessibilityOptionService =
+        Depends(Provide[Container.accessibility_option_service]),
+        guest_accessibility_option_service: IGuestAccessibilityOptionService =
+        Depends(Provide[Container.guest_accessibility_option_service]),
 ) -> dict:
     """
     Create a new guest.
 
     Args:
         guest (GuestIn): The guest data to be added.
+        accessibility_option_ids (List[int], optional): The list of accessibility option ids for the new guest.
         guest_service (IGuestService, optional): The service for managing guest data.
+        accessibility_option_service (IAccessibilityOptionService, optional): The service for managing accessibility
+                                                                                                    option data.
+        guest_accessibility_option_service (IGuestAccessibilityOptionService, optional): The service for managing guest
+                                                                                                    accessibility data.
 
     Returns:
         dict: The details of the newly created guest.
 
     Raises:
-        HTTPException: 400 if the guest creation fails.
+        HTTPException: 404 if the accessibility option not found.
     """
     new_guest = await guest_service.add_guest(guest)
-    return new_guest.model_dump() if new_guest else {}
+
+    if new_guest:
+        for accessibility_option_id in accessibility_option_ids:
+            if accessibility_option_id == -1:
+                continue
+
+            if await accessibility_option_service.get_by_id(accessibility_option_id):
+                await guest_accessibility_option_service.add_guest_accessibility_option(
+                    GuestAccessibilityOptionIn(
+                        guest_id=new_guest.id,
+                        accessibility_option_id=accessibility_option_id,
+                    )
+                )
+            else:
+                await guest_service.delete_guest(new_guest.id)
+                raise HTTPException(status_code=404, detail="Accessibility option not found")
+
+        new_guest = await guest_service.get_by_id(new_guest.id)
+
+    return new_guest if new_guest else {}
 
 
-@router.get("/all", response_model=Iterable[Guest], status_code=200)
+@router.get("/all", response_model=List[Guest], status_code=200)
 @inject
 async def get_all_guests(
         guest_service: IGuestService = Depends(Provide[Container.guest_service]),
-) -> Iterable:
+) -> List:
     """
     Retrieve all guests.
 
@@ -47,9 +78,10 @@ async def get_all_guests(
         guest_service (IGuestService, optional): The service for fetching all guest data.
 
     Returns:
-        Iterable: A collection of all guests.
+        List: A collection of all guests.
     """
     guests = await guest_service.get_all()
+
     return guests
 
 
@@ -73,7 +105,7 @@ async def get_guest_by_id(
         HTTPException: 404 if the guest does not exist.
     """
     if guest := await guest_service.get_by_id(guest_id):
-        return guest.model_dump()
+        return guest
 
     raise HTTPException(status_code=404, detail="Guest not found")
 
