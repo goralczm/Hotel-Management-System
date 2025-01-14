@@ -12,11 +12,6 @@ class InvoiceIn(BaseModel):
     address: str
     nip: str
     reservation_id: int
-    company_name: str = "Hotel Felix"
-    company_address: str = "ul. Słoneczna 15, 00-123 Warszawa"
-    company_nip: str = "123-456-78-90"
-    company_phone: str = "+48 221 234 567"
-    company_email: str = "recepcja@hotelfelix.pl"
 
 
 class Invoice(InvoiceIn):
@@ -24,6 +19,11 @@ class Invoice(InvoiceIn):
     id: int
     total_sum: float = 0.0
     reservation: Reservation = None
+    company_name: str = "Hotel Felix"
+    company_address: str = "ul. Słoneczna 15, 00-123 Warszawa"
+    company_nip: str = "123-456-78-90"
+    company_phone: str = "+48 221 234 567"
+    company_email: str = "recepcja@hotelfelix.pl"
 
     model_config = ConfigDict(
         from_attributes=True,
