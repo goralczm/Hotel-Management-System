@@ -1,8 +1,11 @@
 import os
+import time
 from datetime import datetime, timedelta
 
 from dependency_injector.wiring import Provide
 import random
+
+from fastapi import HTTPException
 
 from hotel_management_system.api.routers import reservation_router
 from hotel_management_system.container import Container
@@ -50,6 +53,9 @@ async def main(
         guest_accessibility_option_service: IGuestAccessibilityOptionService = Provide[Container.guest_accessibility_option_service],
         bill_service: IBillService = Provide[Container.bill_service],
 ):
+    print('\n=== Starting setup ===', flush=True)
+    setup_start = time.time()
+    start = time.time()
     pricing_details_data = (
         ("Doba hotelowa", 200.00),
         ("Wczesne zameldowanie", 25.00),
@@ -66,7 +72,10 @@ async def main(
                 )
             )
         )
+    end = time.time()
+    print(f'Pricing details: {round(end - start, 2)} seconds', flush=True)
 
+    start = time.time()
     accessibility_options_data = (
         "Pierwsze Piętro",
         "Drugie Piętro",
@@ -85,9 +94,10 @@ async def main(
                 )
             )
         )
+    end = time.time()
+    print(f'Accessibility options: {round(end - start, 2)} seconds', flush=True)
 
-    return
-
+    start = time.time()
     sample_guests = []
     with open(os.path.join(os.path.dirname(__file__), 'random_contacts.csv'), 'r') as random_contacts:
         random_contacts = random_contacts.readlines()
@@ -144,10 +154,13 @@ async def main(
                                 accessibility_option_id=accessibility_option.id,
                             )
                         )
+    end = time.time()
+    print(f'Guests: {round(end - start, 2)} seconds', flush=True)
 
     first_floor_accessibility_option = await accessibility_option_service.get_by_name("Pierwsze Piętro")
     second_floor_accessibility_option = await accessibility_option_service.get_by_name("Drugie Piętro")
 
+    start = time.time()
     sample_rooms = []
     for i in range(2):
         for j in range(50):
@@ -186,6 +199,10 @@ async def main(
                         )
                     )
 
+    end = time.time()
+    print(f'Rooms: {round(end - start, 2)} seconds', flush=True)
+
+    start = time.time()
     available_pricings = sample_pricing_details[1:]
 
     for guest in sample_guests[:50]:
@@ -205,8 +222,8 @@ async def main(
                 ),
                 max(1, number_of_guests // 2)
             )
-        except:
-            print(f"CANNOT CREATE RESERVATION {random_start_date.strftime('%Y-%m-%d')}-{end_date.strftime('%Y-%m-%d')}")
+        except HTTPException as error:
+            print(f"CANNOT CREATE RESERVATION {random_start_date.strftime('%Y-%m-%d')}-{end_date.strftime('%Y-%m-%d')}: because {error}")
         else:
             if new_reservation and len(new_reservation.reserved_rooms) > 0:
                 has_bought_something = random.randint(0, 1) == 0
@@ -223,3 +240,7 @@ async def main(
                             reservation_id=new_reservation.id,
                         )
                     )
+    end = time.time()
+    setup_end = time.time()
+    print(f'Reservations: {round(end - start, 2)} seconds', flush=True)
+    print(f'=== Setup done: {round(setup_end - setup_start, 2)} seconds ===\n', flush=True)

@@ -10,6 +10,7 @@ from hotel_management_system.core.domains.bill import BillIn
 from hotel_management_system.core.domains.reservation import Reservation, ReservationIn
 from hotel_management_system.core.domains.reservation_room import ReservationRoomIn
 from hotel_management_system.core.domains.room import Room
+from hotel_management_system.core.services.i_accessibility_option_service import IAccessibilityOptionService
 from hotel_management_system.core.services.i_bill_service import IBillService
 from hotel_management_system.core.services.i_guest_service import IGuestService
 from hotel_management_system.core.services.i_pricing_detail_service import IPricingDetailService
@@ -25,6 +26,9 @@ router = APIRouter()
 async def create_best_reservation(
         reservation: ReservationIn,
         number_of_rooms: int,
+        additional_accessibility_option_ids: List[int] = [-1],
+        accessibility_option_service: IAccessibilityOptionService =
+        Depends(Provide[Container.accessibility_option_service]),
         reservation_service: IReservationService = Depends(Provide[Container.reservation_service]),
         guest_service: IGuestService = Depends(Provide[Container.guest_service]),
 ) -> Reservation | dict:
@@ -34,6 +38,10 @@ async def create_best_reservation(
     Args:
         reservation (ReservationIn): The reservation data.
         number_of_rooms (int): The number of rooms to reserve.
+        additional_accessibility_option_ids (List[int]): The list of additional accessibility option ids specific
+                                                                                                    to the reservation
+        accessibility_option_service (IAccessibilityOptionService, optional): The injected reservation
+                                                                                        accessibility option dependency.
         reservation_service (IReservationService, optional): The injected reservation service dependency.
         guest_service (IGuestService, optional): The injected guest service dependency.
 
@@ -41,10 +49,22 @@ async def create_best_reservation(
         Reservation | dict: The reservation details or an empty dictionary if no reservation is created.
 
     Raises:
-        HTTPException: If the guest does not exist or if there are not enough available rooms.
+        HTTPException: If the guest does not exist.
+        HTTPException: If there are not enough available rooms.
+        HTTPException: If the accessibility option does not exist.
     """
     if not await guest_service.get_by_id(reservation.guest_id):
         raise HTTPException(status_code=404, detail=f"No guest with id: {reservation.guest_id}")
+
+    accessibility_options = []
+    for accessibility_option_id in additional_accessibility_option_ids:
+        if accessibility_option_id == -1:
+            continue
+
+        if accessibility_option := await accessibility_option_service.get_by_id(accessibility_option_id):
+            accessibility_options.append(accessibility_option)
+        else:
+            raise HTTPException(status_code=404, detail=f"No accessibility option found")
 
     free_rooms = await reservation_service.get_free_rooms(reservation.start_date, reservation.end_date)
 
@@ -53,11 +73,14 @@ async def create_best_reservation(
 
     guest = await guest_service.get_by_id(reservation.guest_id)
 
+    existing_accessibility_option_ids = (accessibility_option.id for accessibility_option in accessibility_options)
+    accessibility_options += [accessibility_option for accessibility_option in guest.accessibility_options if accessibility_option.id not in existing_accessibility_option_ids]
+
     sorted_rooms = []
 
-    if len(guest.accessibility_options) > 0:
+    if len(accessibility_options) > 0:
         sorted_rooms = sorted(free_rooms,
-                              key=lambda room: room.correlation_coefficient(guest.accessibility_options),
+                              key=lambda room: room.correlation_coefficient(accessibility_options),
                               reverse=True)
     else:
         sorted_rooms = sorted(free_rooms,
@@ -98,8 +121,14 @@ async def create_reservation(
         Reservation | dict: The new reservation details or an empty dictionary if the reservation was not created.
 
     Raises:
-        HTTPException: If the guest or rooms are not found, or if no pricing detail is found.
+        HTTPException: If reservation end date is less or equal the start date.
+        HTTPException: If the guest is not found
+        HTTPException: If the rooms are not found
+        HTTPException: If no pricing detail is found.
     """
+    if reservation.end_date <= reservation.start_date:
+        raise HTTPException(status_code=409, detail="Reservation end date cannot be before the start date")
+
     if not await guest_service.get_by_id(reservation.guest_id):
         raise HTTPException(status_code=404, detail=f"No guest with id: {reservation.guest_id}")
 

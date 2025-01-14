@@ -135,20 +135,14 @@ class ReservationService(IReservationService):
 
         all_rooms = await self._room_service.get_all()
 
-        free_rooms = []
-        for room in all_rooms:
-            can_be_reserved = True
+        reservations = await self.get_between_dates(start_date, end_date)
 
-            reserved_rooms = await self._reservation_room_service.get_by_room_id(room.id)
-            for reserved_room in reserved_rooms:
-                reservation = await self.get_by_id(reserved_room.reservation_id)
-                if reservation.start_date <= start_date < reservation.end_date and \
-                   reservation.start_date < end_date <= reservation.end_date:
-                    can_be_reserved = False
-                    break
+        reserved_room_ids = set()
 
-            if can_be_reserved:
-                free_rooms.append(room)
+        for reservation in reservations:
+            reserved_room_ids.update([reserved_room.id for reserved_room in reservation.reserved_rooms])
+
+        free_rooms = [room for room in all_rooms if room.id not in reserved_room_ids]
 
         return free_rooms
 
