@@ -1,0 +1,45 @@
+services:
+  client:
+    build:
+      context: ./client/
+    ports:
+      - "3000:3000"
+    command: ["npm", "run", "dev"]
+    depends_on:
+      - server
+    container_name: client
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    profiles:
+      - dev
+    
+  server:
+    build:
+      context: ./server/
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./server/hotel_management_system:/hotel_management_system
+    command: ["uvicorn", "hotel_management_system.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      - DB_HOST=db
+      - DB_NAME=app
+      - DB_USER=postgres
+      - DB_PASSWORD=pass
+      - SETUP=False
+    depends_on:
+      - db
+    container_name: server
+
+  db:
+    image: postgres:17.0-alpine3.20
+    environment:
+      - POSTGRES_DB=app
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=pass
+    container_name: db
+
+
+networks:
+  backend:
+    
