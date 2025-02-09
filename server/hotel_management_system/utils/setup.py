@@ -108,7 +108,8 @@ async def main(
         with open(os.path.join(os.path.dirname(__file__),'random_addresses.csv'), 'r') as random_addresses:
             random_addresses = random_addresses.readlines()
 
-            for _ in range(1000):
+            guests_count = int(os.environ.get('SETUP_GUEST_COUNT', 100))
+            for _ in range(guests_count):
                 random_contact = random_contacts[random.randint(0, len(random_contacts) - 1)].split(',')
                 random_address = random_addresses[random.randint(0, len(random_addresses) - 1)].split(',')
 
@@ -209,7 +210,8 @@ async def main(
     start = time.time()
     available_pricings = sample_pricing_details[1:]
 
-    for guest in sample_guests[:50]:
+    reservation_count = int(os.environ.get('SETUP_RESERVATION_COUNT', 10))
+    for guest in sample_guests[:reservation_count]:
         random_start_date = get_random_date()
         days_staying = random.randint(1, 7)
         end_date = random_start_date + timedelta(days=days_staying)

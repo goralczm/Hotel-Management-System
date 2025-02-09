@@ -10,6 +10,9 @@ from hotel_management_system.core.domains.guest_accessibility_option import Gues
 from hotel_management_system.core.services.i_accessibility_option_service import IAccessibilityOptionService
 from hotel_management_system.core.services.i_guest_accessibility_option_service import IGuestAccessibilityOptionService
 from hotel_management_system.core.services.i_guest_service import IGuestService
+from hotel_management_system.core.services.i_reservation_service import IReservationService
+
+from hotel_management_system.api.routers.reservation_router import delete_reservation
 
 router = APIRouter()
 
@@ -208,6 +211,7 @@ async def delete_guest(
         guest_service: IGuestService = Depends(Provide[Container.guest_service]),
         guest_accessibility_option_service: IGuestAccessibilityOptionService = Depends(
             Provide[Container.guest_accessibility_option_service]),
+        reservation_service: IReservationService = Depends(Provide[Container.reservation_service]),
 ) -> None:
     """
     Delete a guest along with their accessibility options.
@@ -222,6 +226,10 @@ async def delete_guest(
     """
     if not await guest_service.get_by_id(guest_id=guest_id):
         raise HTTPException(status_code=404, detail="Guest not found")
+
+    reservations = await reservation_service.get_by_guest_id(guest_id)
+    for reservation in reservations:
+        await delete_reservation(reservation.id)
 
     guest_accessibility_options = await guest_accessibility_option_service.get_by_guest_id(guest_id)
     for guest_accessibility_option in guest_accessibility_options:

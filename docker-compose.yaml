@@ -1,15 +1,15 @@
 services:
   client:
     build:
-      context: ./client/
+      context: ./angular-client/
     ports:
-      - "3000:3000"
-    command: ["npm", "run", "dev"]
+      - "4200:4200"
+    command: ["ng", "serve", "--host", "0.0.0.0"]
     depends_on:
       - server
     container_name: client
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - API_URL=http://localhost:8000
     profiles:
       - dev
     
@@ -21,22 +21,16 @@ services:
     volumes:
       - ./server/hotel_management_system:/hotel_management_system
     command: ["uvicorn", "hotel_management_system.main:app", "--host", "0.0.0.0", "--port", "8000"]
-    environment:
-      - DB_HOST=db
-      - DB_NAME=app
-      - DB_USER=postgres
-      - DB_PASSWORD=pass
-      - SETUP=False
+    env_file:
+      - .env
     depends_on:
       - db
     container_name: server
 
   db:
     image: postgres:17.0-alpine3.20
-    environment:
-      - POSTGRES_DB=app
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=pass
+    env_file:
+      - .env
     container_name: db
 
 

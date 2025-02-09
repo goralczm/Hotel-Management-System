@@ -160,23 +160,31 @@ class BillRepository(IBillRepository):
 
         return None
 
-    async def delete_bill(self, room_id: int, pricing_detail_id: int) -> bool:
+    async def delete_bill_by_reservation_id(self, reservation_id: int) -> bool:
         """
         Remove a bill from the data storage.
 
         Args:
-            room_id (int): The ID of the room.
-            pricing_detail_id (int): The ID of the pricing detail.
+            reservation_id (int): The ID of the reservation.
 
         Returns:
             bool: True if the operation is successful, False otherwise.
         """
+        query = (
+            bills_table
+            .select()
+            .where(bills_table.c.reservation_id == reservation_id)
+        )
 
-        if self._get_by_id(room_id, pricing_detail_id):
-            query = bills_table \
-                .delete() \
-                .where(bills_table.c.room_id == room_id and
-                       bills_table.c.pricing_detail_id == pricing_detail_id)
+        bills = await database.fetch_all(query)
+
+        if len(bills) > 0:
+            query = (
+                bills_table
+                .delete()
+                .where(bills_table.c.reservation_id == reservation_id)
+            )
+
             await database.execute(query)
 
             return True

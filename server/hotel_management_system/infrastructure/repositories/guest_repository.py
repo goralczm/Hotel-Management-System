@@ -146,7 +146,7 @@ class GuestRepository(IGuestRepository):
             Guest | None: The updated guest details, or None if the guest is not found.
         """
 
-        if self._get_by_id(guest_id):
+        if await self._get_by_id(guest_id):
             query = (
                 guests_table.update()
                 .where(guests_table.c.id == guest_id)
@@ -170,7 +170,7 @@ class GuestRepository(IGuestRepository):
         """
 
 
-        if self._get_by_id(guest_id):
+        if await self._get_by_id(guest_id):
             query = guests_table \
                 .delete() \
                 .where(guests_table.c.id == guest_id)

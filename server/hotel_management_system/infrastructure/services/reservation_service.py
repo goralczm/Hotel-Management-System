@@ -77,6 +77,21 @@ class ReservationService(IReservationService):
             await self._reservation_repository.get_by_id(reservation_id)
         )
 
+    async def get_by_guest_id(self, guest_id: int) -> List[Reservation] | None:
+        """
+        Retrieve a list of reservations by the guest ID.
+
+        Args:
+            guest_id (int): The ID of the guest.
+
+        Returns:
+            List[Reservation]: A list of all reservations with the guest_id.
+        """
+        all_reservations = await self._reservation_repository.get_all_reservations()
+        all_reservations = [reservation for reservation in all_reservations if reservation.guest_id == guest_id]
+
+        return [await self.parse_reservation(reservation) for reservation in all_reservations]
+
     async def get_by_month(self, year: int, month_number: int) -> List[Reservation]:
         """
         Retrieve reservations made during the specified month.

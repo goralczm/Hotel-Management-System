@@ -318,6 +318,7 @@ async def delete_reservation(
         reservation_id: int,
         reservation_service: IReservationService = Depends(Provide[Container.reservation_service]),
         reservation_room_service: IReservationRoomService = Depends(Provide[Container.reservation_room_service]),
+        bill_service: IBillService = Depends(Provide[Container.bill_service])
 ) -> None:
     """
     Delete a reservation by ID.
@@ -332,6 +333,8 @@ async def delete_reservation(
 
     if not await reservation_service.get_by_id(reservation_id=reservation_id):
         raise HTTPException(status_code=404, detail="Reservation not found")
+
+    await bill_service.delete_bill_by_reservation_id(reservation_id)
 
     for reservation_room in await reservation_room_service.get_by_reservation_id(reservation_id):
         await reservation_room_service.delete_reservation_room(reservation_room.room_id, reservation_id)

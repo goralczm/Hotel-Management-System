@@ -102,13 +102,12 @@ class IBillRepository(ABC):
         """
 
     @abstractmethod
-    async def delete_bill(self, room_id: int, pricing_detail_id: int) -> bool:
+    async def delete_bill_by_reservation_id(self, reservation_id: int) -> bool:
         """
         Remove a bill from the data storage.
 
         Args:
-            room_id (int): The ID of the room.
-            pricing_detail_id (int): The ID of the pricing detail.
+            reservation_id (int): The ID of the reservation.
 
         Returns:
             bool: True if the operation is successful, False otherwise.

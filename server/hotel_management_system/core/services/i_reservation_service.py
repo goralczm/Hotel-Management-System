@@ -35,6 +35,18 @@ class IReservationService(ABC):
         """
 
     @abstractmethod
+    async def get_by_guest_id(self, guest_id: int) -> List[Reservation] | None:
+        """
+        Retrieve a list of reservations by the guest ID.
+
+        Args:
+            guest_id (int): The ID of the guest.
+
+        Returns:
+            List[Reservation]: A list of all reservations with the guest_id.
+        """
+
+    @abstractmethod
     async def get_free_rooms(self, start_date: date, end_date: date) -> List[Room]:
         """
         Retrieve rooms that are not reserved within the provided start and end dates.

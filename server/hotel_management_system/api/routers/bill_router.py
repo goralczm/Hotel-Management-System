@@ -135,26 +135,22 @@ async def update_bill(
     raise HTTPException(status_code=404, detail="Bill not found")
 
 
-@router.delete("/{room_pricing_detail_id}", status_code=204)
+@router.delete("/{reservation_id}", status_code=204)
 @inject
-async def delete_bill(
-        room_id: int,
-        pricing_detail_id: int,
+async def delete_bill_by_reservation_id(
+        reservation_id: int,
         service: IBillService = Depends(Provide[Container.bill_service]),
 ) -> None:
     """
     Delete a bill by room ID and pricing detail ID.
 
     Args:
-        room_id (int): The room ID associated with the bill.
-        pricing_detail_id (int): The pricing detail ID associated with the bill.
+        reservation_id (int): The reservation ID associated with the bill.
         service (IBillService, optional): The service to delete the bill.
 
     Raises:
         HTTPException: 404 if the bill is not found.
     """
-    if await service.get_by_id(room_id=room_id, pricing_detail_id=pricing_detail_id):
-        await service.delete_bill(room_id, pricing_detail_id)
-        return
+    await service.delete_bill_by_reservation_id(reservation_id)
 
-    raise HTTPException(status_code=404, detail="Bill not found")
+    return

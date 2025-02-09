@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <title>Hotel Management System</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+<body>
+  <app-root></app-root>
+  <script>
+    if (getCookie("darkmode") === "true")
+      setDarkMode(true);
+    else
+      setDarkMode(false);
+
+    function getCookie(cname) {
+      let name = cname + "=";
+      let decodedCookie = decodeURIComponent(document.cookie);
+      let ca = decodedCookie.split(';');
+      for(let i = 0; i <ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) == ' ') {
+          c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+          return c.substring(name.length, c.length);
+        }
+      }
+      return "";
+    }
+
+    function toggleDarkMode()
+    {
+      if (document.documentElement.getAttribute('data-bs-theme') == 'dark')
+        setDarkMode(false);
+      else
+        setDarkMode(true);
+    }
+
+    function setDarkMode(state)
+    {
+      if (state)
+      {
+        document.documentElement.setAttribute('data-bs-theme','dark');
+        document.cookie = "darkmode=true";
+      }
+      else
+      {
+        document.documentElement.setAttribute('data-bs-theme','light');
+        document.cookie = "darkmode=false";
+      }
+    }
+  </script>
+</body>
+</html>
