@@ -1,45 +1,59 @@
 <div class="container w-75 mt-3">
-  <button type="button" class="btn btn-secondary w-100" data-bs-toggle="modal" data-bs-target="#guestModal" (click)="modalType='Register'; myForm.reset();">Register Guest</button>
-
-  <div class="w-100 d-flex justify-content-center mt-3 mb-3 gap-3">
-    @if (getPagesCount() > 0) {
-      <nav aria-label="Page navigation example">
-        <ul class="pagination justify-content-center m-0">
-          <li class="page-item">
-            <button class="page-link" aria-label="Previous" (click)="setPage(lastPage - 1)">
-              <span aria-hidden="true">&laquo;</span>
-            </button>
-          </li>
-          <li *ngFor="let item of [].constructor(getPagesCount()); let i = index" class="page-item"><button class="page-link" (click)="setPage(i + 1)">{{ i + 1 }}</button></li>
-          <li class="page-item">
-            <button class="page-link" aria-label="Next" (click)="setPage(lastPage + 1)">
-              <span aria-hidden="true">&raquo;</span>
-            </button>
-          </li>
-        </ul>
-      </nav>
-      <div class="input-group w-auto">
-        <span class="input-group-text" id="basic-addon3">Limit</span>
-        <select class="form-select" id="display-limit" aria-label="Default select example" (change)="displayLimitSelectChanged($event.target)">
-          <option value="5" selected>5</option>
-          <option value="10">10</option>
-          <option value="50">50</option>
-        </select>
+  <button type="button" class="btn btn-secondary w-100" data-bs-toggle="modal" data-bs-target="#guestModal"
+          (click)="modalType='Register'; myForm.reset();">Register Guest
+  </button>
+  <div class="container mt-3 mb-3 w-100">
+    <div class="row gx-3 gy-3">
+      <div class="col-md-4">
+        <form class="d-flex m-0" role="search">
+          <input class="form-control" type="search" placeholder="Search" aria-label="Search"
+                 (input)="searchOnChange($event.target)">
+        </form>
       </div>
-      <div class="input-group w-auto">
-        <select class="form-select" aria-label="Default select example" (change)="updateSortingCondition($event.target)">
-          <option value="sort-id-asc" selected>Sort by ID ascending</option>
-          <option value="sort-id-desc">Sort by ID descending</option>
-          <option value="sort-first-name-asc">Sort by first name ascending</option>
-          <option value="sort-first-name-desc">Sort by first name descending</option>
-          <option value="sort-last-name-asc">Sort by last name ascending</option>
-          <option value="sort-last-name-desc">Sort by last name descending</option>
-        </select>
+      <div class="col-md-4">
+        <div class="input-group w-100">
+          <span class="input-group-text" id="basic-addon3">Limit</span>
+          <select class="form-select" id="display-limit" aria-label="Default select example"
+                  (change)="displayLimitSelectChanged($event.target)">
+            <option value="5" selected>5</option>
+            <option value="10">10</option>
+            <option value="50">50</option>
+          </select>
+        </div>
       </div>
-      <form class="d-flex" role="search">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" (input)="searchOnChange($event.target)">
-      </form>
-    }
+      <div class="col-md-4">
+        <div class="input-group">
+          <select class="form-select" aria-label="Default select example"
+                  (change)="updateSortingCondition($event.target)">
+            <option value="sort-id-asc" selected>Sort by ID ascending</option>
+            <option value="sort-id-desc">Sort by ID descending</option>
+            <option value="sort-first-name-asc">Sort by first name ascending</option>
+            <option value="sort-first-name-desc">Sort by first name descending</option>
+            <option value="sort-last-name-asc">Sort by last name ascending</option>
+            <option value="sort-last-name-desc">Sort by last name descending</option>
+          </select>
+        </div>
+      </div>
+      <div class="col-12">
+        <nav aria-label="Page navigation example">
+          <ul class="pagination justify-content-center m-0">
+            <li class="page-item">
+              <button class="page-link" aria-label="Previous" (click)="setPage(lastPage - 1)">
+                <span aria-hidden="true">&laquo;</span>
+              </button>
+            </li>
+            <li *ngFor="let item of [].constructor(getPagesCount()); let i = index" class="page-item">
+              <button class="page-link" (click)="setPage(i + 1)">{{ i + 1 }}</button>
+            </li>
+            <li class="page-item">
+              <button class="page-link" aria-label="Next" (click)="setPage(lastPage + 1)">
+                <span aria-hidden="true">&raquo;</span>
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
   </div>
 
   <div class="rounded-3 w-100 mt-3 mb-3 d-flex justify-content-center">
@@ -56,22 +70,35 @@
       </tr>
       </thead>
       <tbody>
-        @for(guest of displayedGuests; track guest.id) {
+        @for (guest of displayedGuests; track guest.id) {
           <tr>
             <th scope="row">{{ guest.id }}</th>
             <td>{{ guest.first_name }}</td>
             <td>{{ guest.last_name }}</td>
             <td>{{ guest.email }}</td>
-            <td><button type="button" class="btn btn-danger" (click)="lastInteractedGuestId=guest.id" data-bs-toggle="modal" data-bs-target="#confirmationModal"><i class="bi bi-trash-fill"></i></button></td>
-            <td><button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#guestModal" (click)="lastInteractedGuestId=guest.id; fillFormWithGuest(); modalType='Edit'; enableFormInputs();"><i class="bi bi-pencil-fill"></i></button></td>
-            <td><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#guestModal" (click)="lastInteractedGuestId=guest.id; fillFormWithGuest(); modalType='View'; disableFormInputs();"><i class="bi bi-eye-fill"></i></button></td>
+            <td>
+              <button type="button" class="btn btn-danger" (click)="lastInteractedGuestId=guest.id"
+                      data-bs-toggle="modal" data-bs-target="#confirmationModal"><i class="bi bi-trash-fill"></i>
+              </button>
+            </td>
+            <td>
+              <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#guestModal"
+                      (click)="lastInteractedGuestId=guest.id; fillFormWithGuest(); modalType='Edit'; enableFormInputs();">
+                <i class="bi bi-pencil-fill"></i></button>
+            </td>
+            <td>
+              <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#guestModal"
+                      (click)="lastInteractedGuestId=guest.id; fillFormWithGuest(); modalType='View'; disableFormInputs();">
+                <i class="bi bi-eye-fill"></i></button>
+            </td>
           </tr>
         }
       </tbody>
     </table>
   </div>
 
-  <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+  <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel"
+       aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -83,7 +110,9 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-danger" (click)="deleteUser(lastInteractedGuestId)" data-bs-dismiss="modal">Delete</button>
+          <button type="button" class="btn btn-danger" (click)="deleteUser(lastInteractedGuestId)"
+                  data-bs-dismiss="modal">Delete
+          </button>
         </div>
       </div>
     </div>

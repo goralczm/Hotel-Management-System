@@ -17,7 +17,7 @@ import {ToastComponent} from '../toast/toast.component';
   ],
   templateUrl: './guest-list.component.html',
   styleUrl: './guest-list.component.css',
-  providers: [ ApiService ],
+  providers: [ApiService],
 })
 export class GuestListComponent implements OnInit {
   lastInteractedGuestId: number = -1;
@@ -73,8 +73,7 @@ export class GuestListComponent implements OnInit {
 
   sortGuests() {
     this.allGuests.sort((a, b) => {
-      switch (this.lastSortingCondition)
-      {
+      switch (this.lastSortingCondition) {
         case 'sort-id-asc':
           if (a.id > b.id) return 1;
           else return -1;
@@ -96,10 +95,34 @@ export class GuestListComponent implements OnInit {
   }
 
   filterGuests() {
-    const search = this.filterCondition.toLowerCase();
+    if (this.filterCondition === '') {
+      this.filteredGuests = this.allGuests;
+      return;
+    }
+
+    const searches: string[] = this.filterCondition.toLowerCase().split(' ');
+
+    this.filteredGuests = [];
+
+    const search = searches[0].toLowerCase();
+
     this.filteredGuests = this.allGuests.filter(guest =>
-      guest.first_name.includes(search) ||
-      guest.last_name.includes(search));
+      guest.first_name.toLowerCase().includes(search) ||
+      guest.last_name.toLowerCase().includes(search)
+    )
+
+    if (searches.length > 1) {
+      for (let i = 1; i < searches.length; i++) {
+        const search = searches[i].toLowerCase();
+        if (search === '')
+          continue;
+
+        this.filteredGuests = this.filteredGuests.filter(guest =>
+          guest.first_name.toLowerCase().includes(search) ||
+          guest.last_name.toLowerCase().includes(search)
+        );
+      }
+    }
   }
 
   updateGuests(): void {
@@ -109,7 +132,7 @@ export class GuestListComponent implements OnInit {
   }
 
   getPagesCount(): number {
-    return Math.ceil(this.allGuests.length / this.guestDisplayLimit);
+    return Math.ceil(this.filteredGuests.length / this.guestDisplayLimit);
   }
 
   displayLimitSelectChanged(eventTarget: EventTarget | null): void {
@@ -124,20 +147,17 @@ export class GuestListComponent implements OnInit {
   }
 
   setPage(page: number): void {
-    if (this.allGuests.length === 0)
-    {
+    if (this.filteredGuests.length === 0) {
       this.displayedGuests = [];
       return;
     }
 
-    if (page <= 0)
-    {
+    if (page <= 0) {
       this.setPage(1);
       return;
     }
 
-    if (page > this.getPagesCount())
-    {
+    if (page > this.getPagesCount()) {
       this.setPage(this.getPagesCount());
       return;
     }
@@ -166,7 +186,7 @@ export class GuestListComponent implements OnInit {
       .getById(this.lastInteractedGuestId)
       .subscribe((guest: Guest) => {
         if (this.myForm)
-          this.myForm.patchValue({ ...guest });
+          this.myForm.patchValue({...guest});
       })
   }
 
@@ -179,7 +199,7 @@ export class GuestListComponent implements OnInit {
         this.putGuestSubmit();
         break;
       case 'View':
-        this.modalType='Edit';
+        this.modalType = 'Edit';
         this.enableFormInputs();
         break;
     }
