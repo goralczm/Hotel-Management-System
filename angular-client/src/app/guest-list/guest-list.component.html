@@ -2,7 +2,7 @@
   <button type="button" class="btn btn-secondary w-100" data-bs-toggle="modal" data-bs-target="#guestModal"
           (click)="modalType='Register'; myForm.reset();">Register Guest
   </button>
-  <div class="container mt-3 mb-3 w-100">
+  <div class="w-100 container mt-3 mb-3 p-0">
     <div class="row gx-3 gy-3">
       <div class="col-md-4">
         <form class="d-flex m-0" role="search">
@@ -35,23 +35,7 @@
         </div>
       </div>
       <div class="col-12">
-        <nav aria-label="Page navigation example">
-          <ul class="pagination justify-content-center m-0">
-            <li class="page-item">
-              <button class="page-link" aria-label="Previous" (click)="setPage(lastPage - 1)">
-                <span aria-hidden="true">&laquo;</span>
-              </button>
-            </li>
-            <li *ngFor="let item of [].constructor(getPagesCount()); let i = index" class="page-item">
-              <button class="page-link" (click)="setPage(i + 1)">{{ i + 1 }}</button>
-            </li>
-            <li class="page-item">
-              <button class="page-link" aria-label="Next" (click)="setPage(lastPage + 1)">
-                <span aria-hidden="true">&raquo;</span>
-              </button>
-            </li>
-          </ul>
-        </nav>
+        <ngb-pagination class="d-flex justify-content-center" [collectionSize]="getPagesCount() * 10" [(page)]="lastPage" (pageChange)="refreshPage()" [maxSize]="5" [boundaryLinks]="true"/>
       </div>
     </div>
   </div>

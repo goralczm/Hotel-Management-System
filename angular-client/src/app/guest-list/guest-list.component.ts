@@ -5,6 +5,8 @@ import {Guest} from '../../guest.interface';
 import {ApiService} from '../api.service';
 import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {ToastComponent} from '../toast/toast.component';
+import {NgbPagination} from '@ng-bootstrap/ng-bootstrap';
+import {last} from 'rxjs';
 
 @Component({
   selector: 'app-guest-list',
@@ -14,6 +16,7 @@ import {ToastComponent} from '../toast/toast.component';
     FormsModule,
     ReactiveFormsModule,
     ToastComponent,
+    NgbPagination,
   ],
   templateUrl: './guest-list.component.html',
   styleUrl: './guest-list.component.css',
@@ -23,7 +26,6 @@ export class GuestListComponent implements OnInit {
   lastInteractedGuestId: number = -1;
   modalType: string = 'Register';
   myForm: FormGroup;
-  lastPage: number = 1;
   lastSortingCondition: string = 'sort-id-asc';
   filterCondition: string = '';
 
@@ -31,6 +33,8 @@ export class GuestListComponent implements OnInit {
   filteredGuests: Guest[] = [];
   displayedGuests: Guest[] = [];
   guestDisplayLimit = 5;
+
+  lastPage: number = 1;
 
   constructor(
     private apiService: ApiService,
@@ -152,21 +156,10 @@ export class GuestListComponent implements OnInit {
       return;
     }
 
-    if (page <= 0) {
-      this.setPage(1);
-      return;
-    }
-
-    if (page > this.getPagesCount()) {
-      this.setPage(this.getPagesCount());
-      return;
-    }
-
     const leftIndex = (page - 1) * this.guestDisplayLimit;
     const rightIndex = leftIndex + this.guestDisplayLimit;
 
     this.displayedGuests = this.filteredGuests.slice(leftIndex, rightIndex);
-    this.lastPage = page;
   }
 
   refreshPage(): void {
@@ -236,4 +229,6 @@ export class GuestListComponent implements OnInit {
         ToastComponent.showToast("Delete Guest", `User ${guest?.first_name} ${guest?.last_name} has been deleted successfully.`);
       });
   }
+
+  protected readonly last = last;
 }
