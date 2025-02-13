@@ -1,7 +1,7 @@
 import {Component, inject, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {Guest} from '../../guest.interface';
-import {ApiService} from '../api.service';
+import {GuestService} from '../guest.service';
 import {HttpClientModule} from '@angular/common/http';
 
 @Component({
@@ -11,13 +11,13 @@ import {HttpClientModule} from '@angular/common/http';
   ],
   templateUrl: './guest-view.component.html',
   styleUrl: './guest-view.component.css',
-  providers: [ ApiService ]
+  providers: [ GuestService ]
 })
 export class GuestViewComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   guest: Guest | undefined;
 
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: GuestService) {}
 
   ngOnInit() {
     const idParam = Number(this.route.snapshot.paramMap.get('id'));

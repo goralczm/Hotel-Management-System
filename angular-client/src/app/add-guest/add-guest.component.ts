@@ -1,6 +1,6 @@
 import {Component, inject} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {ApiService} from '../api.service';
+import {GuestService} from '../guest.service';
 import {HttpClientModule} from '@angular/common/http';
 import {Guest} from '../../guest.interface';
 
@@ -13,12 +13,12 @@ import {Guest} from '../../guest.interface';
   ],
   templateUrl: './add-guest.component.html',
   styleUrl: './add-guest.component.css',
-  providers: [ ApiService ],
+  providers: [ GuestService ],
 })
 export class AddGuestComponent {
-  apiService: ApiService;
+  apiService: GuestService;
 
-  constructor(apiService: ApiService) {
+  constructor(apiService: GuestService) {
     this.apiService = apiService;
   }
 

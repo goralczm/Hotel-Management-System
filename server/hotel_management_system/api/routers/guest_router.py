@@ -178,7 +178,10 @@ async def get_by_needle_in_name(
 async def update_guest(
         guest_id: int,
         updated_guest: GuestIn,
+        new_accessibility_option_ids: List[int] = [-1],
         guest_service: IGuestService = Depends(Provide[Container.guest_service]),
+        guest_accessibility_option_service: IGuestAccessibilityOptionService = Depends(Provide[Container.guest_accessibility_option_service]),
+        accessibility_option_service: IAccessibilityOptionService = Depends(Provide[Container.accessibility_option_service]),
 ) -> dict:
     """
     Update guest data.
@@ -194,14 +197,28 @@ async def update_guest(
     Returns:
         dict: The updated guest details.
     """
-    if await guest_service.get_by_id(guest_id=guest_id):
-        await guest_service.update_guest(
-            guest_id=guest_id,
-            data=updated_guest,
-        )
-        return {**updated_guest.model_dump(), "id": guest_id}
+    guest = await guest_service.get_by_id(guest_id=guest_id)
 
-    raise HTTPException(status_code=404, detail="Guest not found")
+    if not guest:
+        raise HTTPException(status_code=404, detail="Guest not found")
+
+    await guest_service.update_guest(
+        guest_id=guest_id,
+        data=updated_guest,
+    )
+
+    if new_accessibility_option_ids is not [-1]:
+        guest_accessibility_option_ids = [acc.id for acc in guest.accessibility_options]
+        for accessibility_option_id in guest_accessibility_option_ids:
+            await guest_accessibility_option_service.delete_guest_accessibility_option(guest_id, accessibility_option_id)
+
+        for accessibility_option_id in new_accessibility_option_ids:
+            await guest_accessibility_option_service.add_guest_accessibility_option(GuestAccessibilityOptionIn(
+                guest_id=guest_id,
+                accessibility_option_id=accessibility_option_id,
+            ))
+
+    return await guest_service.get_by_id(guest_id)
 
 
 @router.delete("/{guest_id}", status_code=204)

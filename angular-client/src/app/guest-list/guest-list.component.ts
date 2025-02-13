@@ -2,11 +2,13 @@ import {Component, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {HttpClientModule} from '@angular/common/http';
 import {Guest} from '../../guest.interface';
-import {ApiService} from '../api.service';
-import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {GuestService} from '../guest.service';
+import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {ToastComponent} from '../toast/toast.component';
 import {NgbPagination} from '@ng-bootstrap/ng-bootstrap';
 import {last} from 'rxjs';
+import {AccessibilityOptionService} from '../accessibility-option.service';
+import {AccessibilityOption} from '../../accessibility_option.interface';
 
 @Component({
   selector: 'app-guest-list',
@@ -20,7 +22,10 @@ import {last} from 'rxjs';
   ],
   templateUrl: './guest-list.component.html',
   styleUrl: './guest-list.component.css',
-  providers: [ApiService],
+  providers: [
+    GuestService,
+    AccessibilityOptionService,
+  ],
 })
 export class GuestListComponent implements OnInit {
   lastInteractedGuestId: number = -1;
@@ -30,6 +35,7 @@ export class GuestListComponent implements OnInit {
   filterCondition: string = '';
 
   allGuests: Guest[] = [];
+  allAccessibilityOptions: AccessibilityOption[] = [];
   filteredGuests: Guest[] = [];
   displayedGuests: Guest[] = [];
   guestDisplayLimit = 5;
@@ -37,9 +43,11 @@ export class GuestListComponent implements OnInit {
   lastPage: number = 1;
 
   constructor(
-    private apiService: ApiService,
+    private guestService: GuestService,
+    private accessibilityOptionService: AccessibilityOptionService,
     private formBuilder: FormBuilder,
   ) {
+    this.setAccessibilityOptions();
 
     this.myForm = this.formBuilder.group({
       first_name: [''],
@@ -50,29 +58,33 @@ export class GuestListComponent implements OnInit {
       country: [''],
       zip_code: [''],
       phone_number: [''],
+      ...this.allAccessibilityOptions.reduce<Record<number, FormControl>>((acc, id) => {
+        acc[id.id] = new FormControl(false);
+        return acc;
+      }, {})
     });
   }
 
   ngOnInit(): void {
-    this.apiService
+    this.guestService
       .getAllGuests()
       .subscribe((guests) => {
         this.allGuests = guests;
         this.setPage(1);
-        this.updateGuests();
+        this.onGuestUpdated();
       });
   }
 
   searchOnChange(eventTarget: EventTarget | null): void {
     const target = eventTarget as HTMLInputElement;
     this.filterCondition = target.value;
-    this.updateGuests();
+    this.onGuestUpdated();
   }
 
   updateSortingCondition(eventTarget: EventTarget | null): void {
     const target = eventTarget as HTMLInputElement;
     this.lastSortingCondition = target.value;
-    this.updateGuests();
+    this.onGuestUpdated();
   }
 
   sortGuests() {
@@ -129,7 +141,7 @@ export class GuestListComponent implements OnInit {
     }
   }
 
-  updateGuests(): void {
+  onGuestUpdated(): void {
     this.sortGuests();
     this.filterGuests();
     this.refreshPage();
@@ -168,6 +180,13 @@ export class GuestListComponent implements OnInit {
 
   public disableFormInputs() {
     this.myForm.disable();
+
+    this.myForm.patchValue({
+      ...this.allAccessibilityOptions.reduce<Record<number, boolean>>((acc, id) => {
+        acc[id.id] = false;
+        return acc;
+      }, {})
+    });
   }
 
   public enableFormInputs() {
@@ -175,11 +194,21 @@ export class GuestListComponent implements OnInit {
   }
 
   public fillFormWithGuest() {
-    this.apiService
+    this.guestService
       .getById(this.lastInteractedGuestId)
       .subscribe((guest: Guest) => {
         if (this.myForm)
+        {
+          const guestAccessibilityOptionIds = guest.accessibility_options.map(acc => acc.id);
+
           this.myForm.patchValue({...guest});
+          this.myForm.patchValue({
+            ...this.allAccessibilityOptions.reduce<Record<number, boolean>>((acc, id) => {
+                acc[id.id] = guestAccessibilityOptionIds.includes(id.id);
+              return acc;
+            }, {})
+          })
+        }
       })
   }
 
@@ -198,37 +227,57 @@ export class GuestListComponent implements OnInit {
     }
   }
 
+  public setAccessibilityOptions(): void {
+    this.accessibilityOptionService
+      .getAllAccessibilityOptions()
+      .subscribe((accessibilityOptions) => {
+        this.allAccessibilityOptions = accessibilityOptions;
+      })
+  }
+
   public createGuestSubmit() {
-    this.apiService
-      .addGuest(this.myForm.value, [])
+    let accessibilityOptions: number[] = [];
+    for (const accessibilityOptionId of this.allAccessibilityOptions) {
+      if (this.myForm.value[accessibilityOptionId.id.toString()] == true)
+        accessibilityOptions.push(accessibilityOptionId.id);
+    }
+
+    this.guestService
+      .addGuest(this.myForm.value, accessibilityOptions)
       .subscribe((guest: Guest) => {
         this.allGuests.push(guest);
-        this.updateGuests();
+        this.onGuestUpdated();
         ToastComponent.showToast("Create Guest", `User ${guest.first_name} ${guest.last_name} has been  added successfully.`);
       });
   }
 
   public putGuestSubmit() {
-    this.apiService
-      .putGuest(this.lastInteractedGuestId, this.myForm.value)
+    let accessibilityOptions: number[] = [];
+    for (const accessibilityOptionId of this.allAccessibilityOptions) {
+      if (this.myForm.value[accessibilityOptionId.id.toString()] == true)
+        accessibilityOptions.push(accessibilityOptionId.id);
+    }
+
+    console.log(accessibilityOptions);
+
+    this.guestService
+      .putGuest(this.lastInteractedGuestId, this.myForm.value, accessibilityOptions)
       .subscribe((guest: Guest) => {
         const index = this.allGuests.findIndex(g => g.id === this.lastInteractedGuestId);
         this.allGuests[index] = guest;
-        this.updateGuests();
+        this.onGuestUpdated();
         ToastComponent.showToast("Edit Guest", `User ${guest.first_name} ${guest.last_name} has been edited successfully.`);
       })
   }
 
   public deleteUser(guestId: number): void {
-    this.apiService
+    this.guestService
       .deleteGuest(guestId)
       .subscribe((response: any) => {
         const guest = this.allGuests.find(g => guestId === g.id);
         this.allGuests = this.allGuests.filter(guest => guestId !== guest.id);
-        this.updateGuests();
+        this.onGuestUpdated();
         ToastComponent.showToast("Delete Guest", `User ${guest?.first_name} ${guest?.last_name} has been deleted successfully.`);
       });
   }
-
-  protected readonly last = last;
 }
