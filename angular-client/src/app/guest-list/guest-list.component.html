@@ -115,9 +115,9 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <form (ngSubmit)="guestModalButton()" [formGroup]="myForm">
-            <div class="d-flex pb-3">
-              <div class="row g-3 pe-3 w-75">
+          <form *ngIf="myForm" (ngSubmit)="guestModalButton()" [formGroup]="myForm">
+            <div class="row pb-3">
+              <div class="col-lg-9 row">
                 <div class="col-md-6">
                   <label for="first_name" class="form-label">First Name</label>
                   <input type="text" class="form-control" id="first_name" formControlName="first_name"
@@ -156,12 +156,12 @@
                          placeholder="123-456-7890"/>
                 </div>
               </div>
-              <div class="vr"></div>
-              <div class="ps-3 w-25">
+              <div class="col-lg-3 mt-3 mt-lg-0">
+                <h5>Accessibility Options</h5>
                 @for (accessibilityOption of allAccessibilityOptions; track accessibilityOption.id) {
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="{{ accessibilityOption.id }}" id="flexCheckDefault" formControlName="{{ accessibilityOption.id }}">
-                    <label class="form-check-label" for="flexCheckDefault">
+                    <input class="form-check-input" type="checkbox" [value]="accessibilityOption.id" [id]="'check-' + accessibilityOption.id" [formControlName]="accessibilityOption.id.toString()">
+                    <label class="form-check-label" [for]="'check-' + accessibilityOption.id">
                       {{ accessibilityOption.name }}
                     </label>
                   </div>

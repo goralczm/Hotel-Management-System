@@ -30,7 +30,7 @@ import {AccessibilityOption} from '../../accessibility_option.interface';
 export class GuestListComponent implements OnInit {
   lastInteractedGuestId: number = -1;
   modalType: string = 'Register';
-  myForm: FormGroup;
+  myForm!: FormGroup;
   lastSortingCondition: string = 'sort-id-asc';
   filterCondition: string = '';
 
@@ -47,22 +47,25 @@ export class GuestListComponent implements OnInit {
     private accessibilityOptionService: AccessibilityOptionService,
     private formBuilder: FormBuilder,
   ) {
-    this.setAccessibilityOptions();
-
-    this.myForm = this.formBuilder.group({
-      first_name: [''],
-      last_name: [''],
-      email: [''],
-      address: [''],
-      city: [''],
-      country: [''],
-      zip_code: [''],
-      phone_number: [''],
-      ...this.allAccessibilityOptions.reduce<Record<number, FormControl>>((acc, id) => {
-        acc[id.id] = new FormControl(false);
-        return acc;
-      }, {})
-    });
+    this.accessibilityOptionService
+      .getAllAccessibilityOptions()
+      .subscribe((accessibilityOptions) => {
+        this.allAccessibilityOptions = accessibilityOptions;
+        this.myForm = this.formBuilder.group({
+          first_name: [''],
+          last_name: [''],
+          email: [''],
+          address: [''],
+          city: [''],
+          country: [''],
+          zip_code: [''],
+          phone_number: [''],
+          ...this.allAccessibilityOptions.reduce<Record<string, FormControl>>((acc, option) => {
+            acc[option.id.toString()] = new FormControl(false);
+            return acc;
+          }, {})
+        });
+      })
   }
 
   ngOnInit(): void {
@@ -227,14 +230,6 @@ export class GuestListComponent implements OnInit {
     }
   }
 
-  public setAccessibilityOptions(): void {
-    this.accessibilityOptionService
-      .getAllAccessibilityOptions()
-      .subscribe((accessibilityOptions) => {
-        this.allAccessibilityOptions = accessibilityOptions;
-      })
-  }
-
   public createGuestSubmit() {
     let accessibilityOptions: number[] = [];
     for (const accessibilityOptionId of this.allAccessibilityOptions) {
@@ -257,8 +252,6 @@ export class GuestListComponent implements OnInit {
       if (this.myForm.value[accessibilityOptionId.id.toString()] == true)
         accessibilityOptions.push(accessibilityOptionId.id);
     }
-
-    console.log(accessibilityOptions);
 
     this.guestService
       .putGuest(this.lastInteractedGuestId, this.myForm.value, accessibilityOptions)
